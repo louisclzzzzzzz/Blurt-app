@@ -4,6 +4,7 @@ import { addDays, formatDateISO, formatDateLabel, formatWeekLabel, mondayOf } fr
 import { MUSCLE_GROUP_LABELS } from '../types/catalogue'
 import type { DayHistoryResponse } from '../types/history'
 import type { WeeklyMuscleVolumeResponse } from '../types/volume'
+import { HeaderWithBack } from './HeaderWithBack'
 import { HistoryActivityLogRow } from './HistoryActivityLogRow'
 import { HistoryWorkoutCard } from './HistoryWorkoutCard'
 import { SegmentedTabs } from './SegmentedTabs'
@@ -16,7 +17,7 @@ type TrainingTab = 'sessions' | 'volume'
 
 const TRAINING_TABS: { value: TrainingTab; label: string }[] = [
   { value: 'sessions', label: 'Séances' },
-  { value: 'volume', label: 'Volume & calories' },
+  { value: 'volume', label: 'Volume' },
 ]
 
 function SessionsTab() {
@@ -30,7 +31,7 @@ function SessionsTab() {
     setError(null)
     getHistory(selectedDate)
       .then(setHistory)
-      .catch(() => setError("Échec du chargement de l'entraînement."))
+      .catch(() => setError("Échec du chargement."))
       .finally(() => setLoading(false))
   }
 
@@ -40,31 +41,31 @@ function SessionsTab() {
     history !== null && history.workout_sessions.length === 0 && history.activity_logs.length === 0
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, -1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-1 text-sm"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
         >
           ← Veille
         </button>
-        <p className="text-sm capitalize">{formatDateLabel(selectedDate)}</p>
+        <p className="text-sm capitalize font-medium">{formatDateLabel(selectedDate)}</p>
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-1 text-sm"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
         >
           Lendemain →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse">Chargement...</p>}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
       {history && !loading && (
         <div className="flex flex-col gap-3">
-          {nothingLogged && <p className="text-sm text-neutral-500">Rien loggé ce jour-là.</p>}
+          {nothingLogged && <p className="text-sm text-neutral-500 text-center py-4">Rien loggé ce jour-là.</p>}
           {history.workout_sessions.map((session) => (
             <HistoryWorkoutCard key={session.id} session={session} onChanged={refetch} />
           ))}
@@ -88,7 +89,7 @@ function VolumeTab() {
     setError(null)
     getWeeklyMuscleVolume(weekStart)
       .then(setData)
-      .catch(() => setError('Échec du chargement du volume.'))
+      .catch(() => setError('Échec du chargement.'))
       .finally(() => setLoading(false))
   }, [weekStart])
 
@@ -96,31 +97,31 @@ function VolumeTab() {
   const maxDailyCalories = data ? Math.max(1, ...data.daily_calories.map((d) => d.calories_kcal)) : 1
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={() => setWeekStart((w) => addDays(w, -7))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-1 text-sm"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
         >
           ← Semaine préc.
         </button>
-        <p className="text-sm">{formatWeekLabel(weekStart)}</p>
+        <p className="text-sm font-medium">{formatWeekLabel(weekStart)}</p>
         <button
           type="button"
           onClick={() => setWeekStart((w) => addDays(w, 7))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-1 text-sm"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
         >
           Semaine suiv. →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse">Chargement...</p>}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
       {data && !loading && (
         <div className="flex flex-col gap-4">
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-3">
+          <div className="mobile-card">
             <div className="flex items-baseline justify-between text-sm">
               <span className="font-medium">Calories brûlées</span>
               <span className="text-neutral-500 text-xs">{data.total_calories_kcal.toFixed(0)} kcal</span>
@@ -138,9 +139,9 @@ function VolumeTab() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {data.muscle_groups.map((g) => (
-              <div key={g.muscle_group} className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-3">
+              <div key={g.muscle_group} className="mobile-card">
                 <div className="flex items-baseline justify-between text-sm">
                   <span className="font-medium">{MUSCLE_GROUP_LABELS[g.muscle_group]}</span>
                   <span className="text-neutral-500 text-xs">{g.total_sets} séries</span>
@@ -177,17 +178,14 @@ export function TrainingScreen({ onClose }: TrainingScreenProps) {
   const [tab, setTab] = useState<TrainingTab>('sessions')
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md px-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium">Entraînement</h2>
-        <button type="button" onClick={onClose} className="text-xs text-neutral-400 underline">
-          Fermer
-        </button>
-      </div>
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      <HeaderWithBack title="Entraînement" onBack={onClose} />
 
       <SegmentedTabs options={TRAINING_TABS} value={tab} onChange={setTab} />
 
-      {tab === 'sessions' ? <SessionsTab /> : <VolumeTab />}
+      <div className="mt-2">
+        {tab === 'sessions' ? <SessionsTab /> : <VolumeTab />}
+      </div>
     </div>
   )
 }

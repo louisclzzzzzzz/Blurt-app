@@ -1,0 +1,134 @@
+/* Mobile-first responsive design */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom mobile optimizations */
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+  
+  /* Better touch targets */
+  button,
+  [role="button"],
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+@layer utilities {
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Mobile scrollbar styling */
+  .mobile-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .mobile-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .mobile-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  .mobile-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  .dark .mobile-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  
+  .dark .mobile-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+  
+  /* Smooth transitions for better UX */
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Press effect for buttons */
+  .press-effect:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+  
+  /* Card styling for mobile */
+  .mobile-card {
+    background: white;
+    dark:bg-neutral-900;
+    border: 1px solid #e4e4e7;
+    dark:border-neutral-800;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .text-mobile-sm {
+    font-size: 0.875rem;
+  }
+  
+  .text-mobile-base {
+    font-size: 1rem;
+  }
+  
+  .text-mobile-lg {
+    font-size: 1.125rem;
+  }
+}
+
+/* Tablet and larger */
+@media (min-width: 641px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Disable text selection on buttons */
+button {
+  user-select: none;
+  -webkit-user-select: none;
+}

@@ -165,11 +165,11 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="flex gap-2">
+      <div className="flex gap-3 mt-4">
         <button
           type="button"
           onClick={handleCancel}
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-2 text-sm"
+          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
         >
           Annuler
         </button>
@@ -177,7 +177,7 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
           type="button"
           onClick={handleSubmit}
           disabled={!canSubmit || submitting}
-          className="flex-1 rounded-lg bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white py-2 text-sm disabled:opacity-40"
+          className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
         >
           {submitting ? 'Enregistrement...' : 'Confirmer'}
         </button>

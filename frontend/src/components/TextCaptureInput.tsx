@@ -30,7 +30,7 @@ export function TextCaptureInput({ onSubmit, disabled }: TextCaptureInputProps) 
         type="button"
         onClick={handleSubmit}
         disabled={disabled || !text.trim()}
-        className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-1.5 text-sm disabled:opacity-40"
+        className="rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-6 py-2 text-sm disabled:opacity-40 press-effect"
       >
         Simuler
       </button>

@@ -43,7 +43,8 @@ export function MicButton({ onRecorded, onListeningChange, disabled }: MicButton
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className={`size-20 shrink-0 disabled:opacity-40 ${state === 'recording' ? 'animate-pulse' : ''}`}
+        className={`size-24 shrink-0 disabled:opacity-40 ${state === 'recording' ? 'animate-pulse' : ''} press-effect`}
+        aria-label={state === 'recording' ? 'Arrêter la dictée' : 'Démarrer la dictée'}
       >
         <img
           src="/images/front/mic.png"

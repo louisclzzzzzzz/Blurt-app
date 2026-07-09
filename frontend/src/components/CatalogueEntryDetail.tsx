@@ -13,6 +13,7 @@ import {
 import type { ActivityTypeDetailRead, ExerciseDetailRead, FoodDetailRead, MuscleGroup } from '../types/catalogue'
 import { MUSCLE_GROUPS, MUSCLE_GROUP_LABELS } from '../types/catalogue'
 import type { CatalogueDomain } from './CatalogueScreen'
+import { HeaderWithBack } from './HeaderWithBack'
 import { MergePicker } from './MergePicker'
 
 interface CatalogueEntryDetailProps {
@@ -216,44 +217,43 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
   const activity = domain === 'activity' && detail ? (detail as ActivityTypeDetailRead) : null
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md px-4">
-      <button type="button" onClick={onBack} className="text-xs text-neutral-400 underline w-fit">
-        ← Retour
-      </button>
-
-      {loading && <p className="text-sm text-neutral-500 animate-pulse">Chargement...</p>}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
       {detail && !loading && !editing && (
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">{detail.name}</h2>
-            <button type="button" onClick={startEdit} className="text-xs underline">
+        <div className="flex flex-col gap-4">
+          <HeaderWithBack title={detail.name} onBack={onBack} />
+
+          <div className="flex justify-end">
+            <button type="button" onClick={startEdit} className="text-sm underline text-blue-600 dark:text-blue-400 press-effect">
               Modifier
             </button>
           </div>
 
           {food && (
-            <p className="text-sm text-neutral-500">
-              {food.brand && `${food.brand} · `}
-              {food.energy_kcal.toFixed(0)} kcal · {food.protein_g.toFixed(1)}g prot. ·{' '}
-              {food.carbs_g.toFixed(1)}g gluc. · {food.fat_g.toFixed(1)}g lip. (pour 100g)
-              {food.default_portion_label &&
-                ` · portion : ${food.default_portion_label} (${food.default_portion_grams}g)`}
-            </p>
+            <div className="mobile-card">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                {food.brand && `${food.brand} · `}
+                {food.energy_kcal.toFixed(0)} kcal · {food.protein_g.toFixed(1)}g prot. ·{' '}
+                {food.carbs_g.toFixed(1)}g gluc. · {food.fat_g.toFixed(1)}g lip. (pour 100g)
+                {food.default_portion_label &&
+                  ` · portion : ${food.default_portion_label} (${food.default_portion_grams}g)`}
+              </p>
+            </div>
           )}
           {exercise && (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-neutral-500">
+            <div className="mobile-card">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">
                 {exercise.equipment && `${exercise.equipment} · `}
                 {exercise.met_value !== null ? `MET ${exercise.met_value}` : 'MET inconnu'}
               </p>
               {exercise.target_muscles.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {exercise.target_muscles.map((m) => (
                     <span
                       key={m}
-                      className="rounded-full border border-neutral-300 dark:border-neutral-600 px-2 py-0.5 text-xs"
+                      className="rounded-full border border-neutral-300 dark:border-neutral-600 px-2 py-1 text-xs bg-neutral-100 dark:bg-neutral-800"
                     >
                       {MUSCLE_GROUP_LABELS[m]}
                     </span>
@@ -263,33 +263,39 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
             </div>
           )}
           {activity && (
-            <p className="text-sm text-neutral-500">
-              {activity.met_value !== null ? `MET ${activity.met_value}` : 'MET inconnu'}
-            </p>
+            <div className="mobile-card">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                {activity.met_value !== null ? `MET ${activity.met_value}` : 'MET inconnu'}
+              </p>
+            </div>
           )}
 
-          <div className="flex flex-col gap-1">
-            <p className="text-xs text-neutral-500">Alias appris :</p>
+          <div className="mobile-card">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-neutral-500">Alias appris :</p>
+            </div>
             {detail.aliases.length === 0 && <p className="text-xs text-neutral-400">Aucun.</p>}
-            {detail.aliases.map((a) => (
-              <div key={a.id} className="flex items-center justify-between text-sm">
-                <span>{a.alias_text}</span>
-                <button
-                  type="button"
-                  onClick={() => removeAlias(a.id)}
-                  disabled={busy}
-                  className="text-xs text-red-500 disabled:opacity-40"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+            <div className="flex flex-col gap-2 mt-2">
+              {detail.aliases.map((a) => (
+                <div key={a.id} className="flex items-center justify-between text-sm">
+                  <span className="text-neutral-700 dark:text-neutral-200">{a.alias_text}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAlias(a.id)}
+                    disabled={busy}
+                    className="text-red-500 disabled:opacity-40 press-effect"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => setShowMerge(true)}
-            className="text-sm text-left underline text-neutral-500 w-fit"
+            className="text-sm text-left underline text-neutral-500 w-fit press-effect"
           >
             Fusionner...
           </button>
@@ -297,19 +303,21 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
       )}
 
       {editing && draft && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4">
+          <HeaderWithBack title="Modifier" onBack={() => setEditing(false)} />
+
           <label className="text-sm flex flex-col gap-1">
             Nom
             <input
               type="text"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
+              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
             />
           </label>
 
           {domain === 'food' && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {FOOD_FIELDS.map(([key, label, isNumber]) => (
                 <label key={key} className="text-xs flex flex-col gap-1">
                   {label}
@@ -317,7 +325,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                     type={isNumber ? 'number' : 'text'}
                     value={draft[key]}
                     onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-                    className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+                    className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                   />
                 </label>
               ))}
@@ -325,21 +333,21 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
           )}
 
           {domain === 'exercise' && (
-            <div className="grid grid-cols-2 gap-2">
-              <label className="text-xs flex flex-col gap-1">
+            <div className="flex flex-col gap-3">
+              <label className="text-sm flex flex-col gap-1">
                 Équipement
                 <input
                   type="text"
                   value={draft.equipment}
                   onChange={(e) => setDraft({ ...draft, equipment: e.target.value })}
-                  className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+                  className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                 />
               </label>
-              <div className="col-span-2 flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <span className="text-xs">Groupes musculaires ciblés</span>
                 <div className="flex flex-wrap gap-2">
                   {MUSCLE_GROUPS.map((m) => (
-                    <label key={m} className="flex items-center gap-1 text-xs">
+                    <label key={m} className="flex items-center gap-1 text-xs cursor-pointer press-effect">
                       <input
                         type="checkbox"
                         checked={draft.target_muscles.includes(m)}
@@ -351,41 +359,42 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                               : draft.target_muscles.filter((x) => x !== m),
                           })
                         }
+                        className="cursor-pointer"
                       />
                       {MUSCLE_GROUP_LABELS[m]}
                     </label>
                   ))}
                 </div>
               </div>
-              <label className="text-xs flex flex-col gap-1">
+              <label className="text-sm flex flex-col gap-1">
                 MET
                 <input
                   type="number"
                   value={draft.met_value}
                   onChange={(e) => setDraft({ ...draft, met_value: e.target.value })}
-                  className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+                  className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                 />
               </label>
             </div>
           )}
 
           {domain === 'activity' && (
-            <label className="text-xs flex flex-col gap-1">
+            <label className="text-sm flex flex-col gap-1">
               MET
               <input
                 type="number"
                 value={draft.met_value}
                 onChange={(e) => setDraft({ ...draft, met_value: e.target.value })}
-                className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+                className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
               />
             </label>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-3 mt-4">
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-2 text-sm"
+              className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
             >
               Annuler
             </button>
@@ -393,7 +402,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
               type="button"
               onClick={saveEdit}
               disabled={busy}
-              className="flex-1 rounded-lg bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white py-2 text-sm disabled:opacity-40"
+              className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
             >
               {busy ? 'Enregistrement...' : 'Enregistrer'}
             </button>

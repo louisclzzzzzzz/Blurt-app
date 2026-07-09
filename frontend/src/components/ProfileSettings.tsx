@@ -51,111 +51,118 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
     }
   }
 
-  if (loading) return <p className="text-sm text-neutral-500">Chargement...</p>
+  if (loading) return <p className="text-sm text-neutral-500 py-8">Chargement...</p>
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-xs px-4">
-      <h2 className="text-lg font-medium">Profil</h2>
-      <p className="text-xs text-neutral-500">
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      <div className="flex items-center gap-3">
+        <button onClick={onClose} className="text-2xl press-effect">←</button>
+        <h2 className="text-lg font-medium">Profil</h2>
+      </div>
+      <p className="text-sm text-neutral-500">
         Utilisé pour estimer les calories dépensées en musculation et en activité.
       </p>
 
-      <label className="text-sm flex flex-col gap-1">
-        Sexe
-        <select
-          value={profile.sex}
-          onChange={(e) => setProfile({ ...profile, sex: e.target.value as UserProfile['sex'] })}
-          className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-        >
-          <option value="male">Homme</option>
-          <option value="female">Femme</option>
-        </select>
-      </label>
+      <div className="flex flex-col gap-3">
+        <label className="text-sm flex flex-col gap-1">
+          Sexe
+          <select
+            value={profile.sex}
+            onChange={(e) => setProfile({ ...profile, sex: e.target.value as UserProfile['sex'] })}
+            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          >
+            <option value="male">Homme</option>
+            <option value="female">Femme</option>
+          </select>
+        </label>
 
-      <label className="text-sm flex flex-col gap-1">
-        Date de naissance
-        <input
-          type="date"
-          value={profile.birth_date}
-          onChange={(e) => setProfile({ ...profile, birth_date: e.target.value })}
-          className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-        />
-      </label>
+        <label className="text-sm flex flex-col gap-1">
+          Date de naissance
+          <input
+            type="date"
+            value={profile.birth_date}
+            onChange={(e) => setProfile({ ...profile, birth_date: e.target.value })}
+            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          />
+        </label>
 
-      <label className="text-sm flex flex-col gap-1">
-        Taille (cm)
-        <input
-          type="number"
-          value={profile.height_cm || ''}
-          onChange={(e) => setProfile({ ...profile, height_cm: Number(e.target.value) })}
-          className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-        />
-      </label>
+        <label className="text-sm flex flex-col gap-1">
+          Taille (cm)
+          <input
+            type="number"
+            value={profile.height_cm || ''}
+            onChange={(e) => setProfile({ ...profile, height_cm: Number(e.target.value) })}
+            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          />
+        </label>
 
-      <label className="text-sm flex flex-col gap-1">
-        Poids (kg)
-        <input
-          type="number"
-          value={profile.weight_kg || ''}
-          onChange={(e) => setProfile({ ...profile, weight_kg: Number(e.target.value) })}
-          className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-        />
-      </label>
+        <label className="text-sm flex flex-col gap-1">
+          Poids (kg)
+          <input
+            type="number"
+            value={profile.weight_kg || ''}
+            onChange={(e) => setProfile({ ...profile, weight_kg: Number(e.target.value) })}
+            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          />
+        </label>
+      </div>
 
-      <div className="border-t border-neutral-200 dark:border-neutral-700 pt-3 flex flex-col gap-3">
+      <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4 flex flex-col gap-3">
         <div>
           <h3 className="text-sm font-medium">Objectifs nutritionnels</h3>
           <p className="text-xs text-neutral-500">Facultatif — utilisés pour le récap dans l'onglet Nutrition.</p>
         </div>
 
-        <label className="text-sm flex flex-col gap-1">
-          Calories (kcal/jour)
-          <input
-            type="number"
-            value={profile.calorie_goal_kcal ?? ''}
-            onChange={(e) => setProfile({ ...profile, calorie_goal_kcal: numOrNull(e.target.value) })}
-            className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-          />
-        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="text-sm flex flex-col gap-1">
+            Calories (kcal/jour)
+            <input
+              type="number"
+              value={profile.calorie_goal_kcal ?? ''}
+              onChange={(e) => setProfile({ ...profile, calorie_goal_kcal: numOrNull(e.target.value) })}
+              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            />
+          </label>
 
-        <label className="text-sm flex flex-col gap-1">
-          Protéines (g/jour)
-          <input
-            type="number"
-            value={profile.protein_goal_g ?? ''}
-            onChange={(e) => setProfile({ ...profile, protein_goal_g: numOrNull(e.target.value) })}
-            className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-          />
-        </label>
+          <label className="text-sm flex flex-col gap-1">
+            Protéines (g/jour)
+            <input
+              type="number"
+              value={profile.protein_goal_g ?? ''}
+              onChange={(e) => setProfile({ ...profile, protein_goal_g: numOrNull(e.target.value) })}
+              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            />
+          </label>
 
-        <label className="text-sm flex flex-col gap-1">
-          Glucides (g/jour)
-          <input
-            type="number"
-            value={profile.carbs_goal_g ?? ''}
-            onChange={(e) => setProfile({ ...profile, carbs_goal_g: numOrNull(e.target.value) })}
-            className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-          />
-        </label>
+          <label className="text-sm flex flex-col gap-1">
+            Glucides (g/jour)
+            <input
+              type="number"
+              value={profile.carbs_goal_g ?? ''}
+              onChange={(e) => setProfile({ ...profile, carbs_goal_g: numOrNull(e.target.value) })}
+              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            />
+          </label>
 
-        <label className="text-sm flex flex-col gap-1">
-          Lipides (g/jour)
-          <input
-            type="number"
-            value={profile.fat_goal_g ?? ''}
-            onChange={(e) => setProfile({ ...profile, fat_goal_g: numOrNull(e.target.value) })}
-            className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
-          />
-        </label>
+          <label className="text-sm flex flex-col gap-1">
+            Lipides (g/jour)
+            <input
+              type="number"
+              value={profile.fat_goal_g ?? ''}
+              onChange={(e) => setProfile({ ...profile, fat_goal_g: numOrNull(e.target.value) })}
+              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            />
+          </label>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="flex gap-2">
+      <div className="flex gap-3 mt-4">
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-2 text-sm"
+          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
         >
           Fermer
         </button>
@@ -163,7 +170,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
           type="button"
           onClick={handleSave}
           disabled={!canSave || saving}
-          className="flex-1 rounded-lg bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white py-2 text-sm disabled:opacity-40"
+          className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
         >
           {saving ? 'Enregistrement...' : 'Enregistrer'}
         </button>

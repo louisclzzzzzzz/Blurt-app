@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { searchActivities, searchExercises, searchFoods } from '../api/client'
 import type { ActivityTypeRead, ExerciseRead, FoodRead } from '../types/catalogue'
 import { CatalogueEntryDetail } from './CatalogueEntryDetail'
+import { HeaderWithBack } from './HeaderWithBack'
 import { SegmentedTabs } from './SegmentedTabs'
 
 export type CatalogueDomain = 'food' | 'exercise' | 'activity'
@@ -44,11 +45,8 @@ export function CatalogueScreen({ onClose }: CatalogueScreenProps) {
       .finally(() => setLoading(false))
   }
 
-  // Recherche initiale au montage uniquement — les recherches suivantes sont
-  // déclenchées explicitement (changement d'onglet, Entrée, bouton).
   useEffect(() => {
     runSearch(domain, query)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const switchDomain = (d: CatalogueDomain) => {
@@ -79,13 +77,8 @@ export function CatalogueScreen({ onClose }: CatalogueScreenProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md px-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium">Catalogue</h2>
-        <button type="button" onClick={onClose} className="text-xs text-neutral-400 underline">
-          Fermer
-        </button>
-      </div>
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      <HeaderWithBack title="Catalogue" onBack={onClose} />
 
       <SegmentedTabs
         options={(Object.keys(DOMAIN_LABELS) as CatalogueDomain[]).map((d) => ({ value: d, label: DOMAIN_LABELS[d] }))}
@@ -97,7 +90,7 @@ export function CatalogueScreen({ onClose }: CatalogueScreenProps) {
         <SegmentedTabs options={FOOD_SUB_TABS} value={foodSubTab} onChange={switchFoodSubTab} />
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <input
           type="text"
           value={query}
@@ -111,27 +104,27 @@ export function CatalogueScreen({ onClose }: CatalogueScreenProps) {
         <button
           type="button"
           onClick={() => runSearch(domain, query)}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-sm"
+          className="rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
         >
           Chercher
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse">Recherche...</p>}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Recherche...</p>}
+      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         {results.map((r) => (
           <button
             key={r.id}
             type="button"
             onClick={() => setSelectedId(r.id)}
-            className="text-left text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-2"
+            className="text-left text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-3 mobile-card press-effect"
           >
             {r.name}
           </button>
         ))}
-        {!loading && results.length === 0 && <p className="text-sm text-neutral-500">Aucun résultat.</p>}
+        {!loading && results.length === 0 && <p className="text-sm text-neutral-500 text-center py-4">Aucun résultat.</p>}
       </div>
     </div>
   )
