@@ -1,0 +1,25 @@
+# Environnement
+.env
+.env.local
+
+# Backend (Python / uv)
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Frontend (Node / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/dev-dist/
+
+# Éditeurs / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Outils locaux
+.claude/
+graphify-out/
