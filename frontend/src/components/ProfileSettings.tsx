@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getProfile, updateProfile } from '../api/client'
 import type { UserProfile } from '../types/capture'
+import { NutritionGoalsForm } from './NutritionGoalsForm'
 
 interface ProfileSettingsProps {
   onClose: () => void
@@ -16,8 +17,6 @@ const EMPTY_PROFILE: UserProfile = {
   carbs_goal_g: null,
   fat_goal_g: null,
 }
-
-const numOrNull = (v: string): number | null => (v === '' ? null : Number(v))
 
 /** Profil biométrique mono-utilisateur : seule donnée saisie via un formulaire plutôt
  * que par dictée (données de configuration ponctuelles, pas un journal d'événements). */
@@ -110,50 +109,13 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
       <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4 flex flex-col gap-3">
         <div>
           <h3 className="text-sm font-medium">Objectifs nutritionnels</h3>
-          <p className="text-xs text-neutral-500">Facultatif — utilisés pour le récap dans l'onglet Nutrition.</p>
+          <p className="text-xs text-neutral-500">
+            Facultatif — utilisés pour le récap dans Nutrition. Aussi modifiables depuis le
+            tableau de bord Nutrition.
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="text-sm flex flex-col gap-1">
-            Calories (kcal/jour)
-            <input
-              type="number"
-              value={profile.calorie_goal_kcal ?? ''}
-              onChange={(e) => setProfile({ ...profile, calorie_goal_kcal: numOrNull(e.target.value) })}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
-            />
-          </label>
-
-          <label className="text-sm flex flex-col gap-1">
-            Protéines (g/jour)
-            <input
-              type="number"
-              value={profile.protein_goal_g ?? ''}
-              onChange={(e) => setProfile({ ...profile, protein_goal_g: numOrNull(e.target.value) })}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
-            />
-          </label>
-
-          <label className="text-sm flex flex-col gap-1">
-            Glucides (g/jour)
-            <input
-              type="number"
-              value={profile.carbs_goal_g ?? ''}
-              onChange={(e) => setProfile({ ...profile, carbs_goal_g: numOrNull(e.target.value) })}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
-            />
-          </label>
-
-          <label className="text-sm flex flex-col gap-1">
-            Lipides (g/jour)
-            <input
-              type="number"
-              value={profile.fat_goal_g ?? ''}
-              onChange={(e) => setProfile({ ...profile, fat_goal_g: numOrNull(e.target.value) })}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
-            />
-          </label>
-        </div>
+        <NutritionGoalsForm profile={profile} onChange={setProfile} />
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
