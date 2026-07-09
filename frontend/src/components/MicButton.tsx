@@ -43,15 +43,20 @@ export function MicButton({ onRecorded, onListeningChange, disabled }: MicButton
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className={`size-24 shrink-0 disabled:opacity-40 ${state === 'recording' ? 'animate-pulse' : ''} press-effect`}
+        className={`relative size-24 shrink-0 disabled:opacity-40 press-effect ${
+          state === 'recording' ? 'animate-pulse drop-shadow-[0_0_16px_rgba(242,169,60,0.8)]' : ''
+        }`}
         aria-label={state === 'recording' ? 'Arrêter la dictée' : 'Démarrer la dictée'}
       >
         <img
-          src="/images/front/mic.png"
+          src="/images/front/mic.svg"
           alt={state === 'recording' ? 'Arrêter la dictée' : 'Démarrer la dictée'}
           draggable={false}
           className="w-full h-full [image-rendering:pixelated] select-none"
         />
+        {state === 'recording' && (
+          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 border-2 border-[#2b1e06] animate-pulse" />
+        )}
       </button>
       {error && <p className="text-sm text-red-500 max-w-xs text-center">{error}</p>}
     </div>

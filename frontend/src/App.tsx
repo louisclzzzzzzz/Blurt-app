@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createCapture, createCaptureFromText, getHealth } from './api/client'
+import { createCapture, createCaptureFromText, getHealth, getHistory, getProfile } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
 import type { CharacterState } from './components/CharacterDisplay'
 import { CharacterDisplay } from './components/CharacterDisplay'
+import { DailyStatsSign } from './components/DailyStatsSign'
+import { formatDateISO } from './lib/dateNav'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
 import { NutritionScreen } from './components/NutritionScreen'
@@ -10,7 +12,8 @@ import { ProfileSettings } from './components/ProfileSettings'
 import { TextCaptureInput } from './components/TextCaptureInput'
 import { TrainingScreen } from './components/TrainingScreen'
 import { ValidationScreen } from './components/ValidationScreen'
-import type { CaptureCreateResponse, ValidateCaptureResponse } from './types/capture'
+import type { CaptureCreateResponse, UserProfile, ValidateCaptureResponse } from './types/capture'
+import type { DayHistoryResponse } from './types/history'
 
 type BackendStatus = 'checking' | 'ok' | 'error'
 type FlowState = 'idle' | 'uploading' | 'validating' | 'done' | 'error'
@@ -24,6 +27,8 @@ function App() {
   const [lastResult, setLastResult] = useState<ValidateCaptureResponse | null>(null)
   const [screen, setScreen] = useState<Screen>('capture')
   const [isListening, setIsListening] = useState(false)
+  const [todayHistory, setTodayHistory] = useState<DayHistoryResponse | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
 
   // Le personnage reflète le pipeline de capture réel là où l'info existe déjà
   // (flow d'upload/validation) ; "listening" vient de l'état du micro (MicButton).
@@ -39,6 +44,34 @@ function App() {
       .then(() => setBackendStatus('ok'))
       .catch(() => setBackendStatus('error'))
   }, [])
+
+  useEffect(() => {
+    getProfile()
+      .then(setProfile)
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    getHistory(formatDateISO(new Date()))
+      .then(setTodayHistory)
+      .catch(() => {})
+  }, [flow])
+
+  const consumedKcal = useMemo(
+    () =>
+      todayHistory?.meals.reduce(
+        (sum, meal) => sum + meal.consumptions.reduce((s, c) => s + c.energy_kcal, 0),
+        0,
+      ) ?? 0,
+    [todayHistory],
+  )
+
+  const burnedKcal = useMemo(() => {
+    if (!todayHistory) return 0
+    const workouts = todayHistory.workout_sessions.reduce((s, w) => s + (w.calories_kcal ?? 0), 0)
+    const activities = todayHistory.activity_logs.reduce((s, a) => s + (a.calories_kcal ?? 0), 0)
+    return workouts + activities
+  }, [todayHistory])
 
   const handleRecorded = async (blob: Blob, filename: string) => {
     setFlow('uploading')
@@ -89,75 +122,93 @@ function App() {
         return <CatalogueScreen onClose={() => setScreen('capture')} />
       default:
         return (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 p-4 pt-8 pb-20">
-            <CharacterDisplay state={characterState} className="w-full max-w-xs" />
+          <div className="relative isolate min-h-svh flex flex-col overflow-hidden">
+            <CharacterDisplay
+              state={characterState}
+              className="absolute inset-0 w-full h-full object-cover -z-10"
+            />
 
-            {flow === 'idle' && (
-              <div className="flex flex-col items-center gap-4 w-full">
-                <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
-                <TextCaptureInput onSubmit={handleTextSubmit} />
-                <div className="text-sm text-neutral-500 flex items-center gap-2">
-                  <span
-                    className={`inline-block size-2 rounded-full ${
-                      backendStatus === 'ok'
-                        ? 'bg-green-500'
-                        : backendStatus === 'error'
-                          ? 'bg-red-500'
-                          : 'bg-neutral-400 animate-pulse'
-                    }`}
-                  />
-                  {backendStatus === 'checking' && 'Connexion...'}
-                  {backendStatus === 'ok' && 'Connecté'}
-                  {backendStatus === 'error' && 'Hors ligne'}
+            <div className="flex flex-col items-center gap-2 pt-[6%] px-4">
+              <h1 className="font-pixel text-pixel-outline text-[clamp(2rem,10vw,3.25rem)] leading-none text-center bg-gradient-to-b from-[#a9c98f] to-[#5f7f4c] bg-clip-text text-transparent">
+                Blurt
+              </h1>
+              <DailyStatsSign
+                consumedKcal={consumedKcal}
+                burnedKcal={burnedKcal}
+                calorieGoalKcal={profile?.calorie_goal_kcal ?? null}
+              />
+            </div>
+
+            <div className="flex-1" />
+
+            <div className="flex flex-col items-center gap-4 px-4 pb-24">
+              {flow === 'idle' && (
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
+                  <TextCaptureInput onSubmit={handleTextSubmit} />
+                  <div className="text-xs text-neutral-200 flex items-center gap-2 drop-shadow">
+                    <span
+                      className={`inline-block size-2 rounded-full ${
+                        backendStatus === 'ok'
+                          ? 'bg-green-500'
+                          : backendStatus === 'error'
+                            ? 'bg-red-500'
+                            : 'bg-neutral-400 animate-pulse'
+                      }`}
+                    />
+                    {backendStatus === 'checking' && 'Connexion...'}
+                    {backendStatus === 'ok' && 'Connecté'}
+                    {backendStatus === 'error' && 'Hors ligne'}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {flow === 'uploading' && (
-              <p className="text-sm text-neutral-500 animate-pulse">Analyse en cours...</p>
-            )}
+              {flow === 'uploading' && (
+                <p className="text-sm text-neutral-100 animate-pulse drop-shadow">Analyse en cours...</p>
+              )}
 
-            {flow === 'error' && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-sm text-red-500 max-w-xs text-center">{errorMessage}</p>
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-6 py-2 text-sm press-effect"
-                >
-                  Réessayer
-                </button>
-              </div>
-            )}
+              {flow === 'error' && (
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm text-red-400 max-w-xs text-center drop-shadow">{errorMessage}</p>
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="rounded-lg border border-neutral-200 text-neutral-50 px-6 py-2 text-sm press-effect bg-black/30"
+                  >
+                    Réessayer
+                  </button>
+                </div>
+              )}
 
-            {flow === 'validating' && capture && (
-              <div className="w-full max-w-md px-4">
-                <ValidationScreen
-                  capture={capture}
-                  onDone={(response) => {
-                    setLastResult(response)
-                    setFlow('done')
-                  }}
-                  onCancel={reset}
-                />
-              </div>
-            )}
+              {flow === 'validating' && capture && (
+                <div className="w-full max-w-md rounded-xl bg-neutral-50 dark:bg-neutral-900 p-3 max-h-[70vh] overflow-y-auto mobile-scrollbar shadow-xl">
+                  <ValidationScreen
+                    capture={capture}
+                    onDone={(response) => {
+                      setLastResult(response)
+                      setFlow('done')
+                    }}
+                    onCancel={reset}
+                  />
+                </div>
+              )}
 
-            {flow === 'done' && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-sm">Enregistré.</p>
-                {totalCalories > 0 && (
-                  <p className="text-sm text-neutral-500">≈ {totalCalories.toFixed(0)} kcal</p>
-                )}
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="rounded-lg bg-blue-600 dark:bg-blue-500 dark:text-white text-white px-6 py-2 text-sm press-effect"
-                >
-                  Nouvelle dictée
-                </button>
-              </div>
-            )}
+              {flow === 'done' && (
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm text-neutral-50 drop-shadow">Enregistré.</p>
+                  {totalCalories > 0 && (
+                    <p className="text-sm text-neutral-200 drop-shadow">≈ {totalCalories.toFixed(0)} kcal</p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="rounded-lg bg-blue-600 dark:bg-blue-500 dark:text-white text-white px-6 py-2 text-sm press-effect"
+                  >
+                    Nouvelle dictée
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )
     }

@@ -1,7 +1,5 @@
 /* Mobile-first responsive design */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Custom mobile optimizations */
 @layer base {
@@ -40,6 +38,20 @@
 }
 
 @layer utilities {
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  /* Empilement de text-shadow façon pixel-art pour donner de l'épaisseur au titre. */
+  .text-pixel-outline {
+    text-shadow:
+      2px 2px 0 #1c2b1a,
+      -2px 2px 0 #1c2b1a,
+      2px -2px 0 #1c2b1a,
+      -2px -2px 0 #1c2b1a,
+      4px 4px 0 #0e150d;
+  }
+
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }

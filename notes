@@ -1,0 +1,15 @@
+Pour l'historique, c'est par l'entraînement et la nutrition, dans deux onglets différents.
+Pour la base de données, nettoyons un peu, notamment pour les fruits. Pour la banane, les jus de banane, ça ne compte pas comme la banane entière. Enlève les trucs qui sont inutiles.
+Il faut faire un menu récapitulatif de toutes les macros qu'on a mangées, avec un rond pour mettre les calories et pour mettre des objectifs de macros, notamment un objectif de protéines, de glucides, etc.
+
+
+Quand on mentionne les macros d'un aliment pendant le speech, détecte automatiquement que c'est un nouvel aliment à créer. Ne propose pas de suggestions d'aliments dans la base de données. 
+Tu vas récupérer un aliment dans la base de données uniquement quand on ne mentionne aucune macro.
+
+
+Pour le catalogue des aliments, on fait deux onglets : un pour les aliments créés et un pour les aliments de base on va en afficher quelques-uns, et on peut mettre une barre de recherche pour chercher.
+
+Pour les exos de muscu, quand on va en créer un nouveau (que ce soit par la parole ou directement dans la fiche, dans le catalogue), on pourra dire quels muscles ça cible.
+
+Comme pour la nutrition, il faut faire un onglet spécial muscu où ça va renseigner un peu le volume et le nombre de séries réalisées par jour sur tel ou tel groupe musculaire, pour avoir un récapitulatif du volume sur tel ou tel muscle dans la semaine.
+
