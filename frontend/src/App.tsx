@@ -119,7 +119,10 @@ function App() {
         {flow === 'idle' && (
           <>
             <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
-            <TextCaptureInput onSubmit={handleTextSubmit} />
+            {/* Masqué temporairement — remettre visible en retirant "hidden" */}
+            <div className="hidden">
+              <TextCaptureInput onSubmit={handleTextSubmit} />
+            </div>
             <p className="text-sm text-neutral-500 flex items-center gap-2">
               <span
                 className={`inline-block size-2 rounded-full ${
