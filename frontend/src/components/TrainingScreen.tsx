@@ -4,23 +4,19 @@ import { addDays, formatDateISO, formatDateLabel, formatWeekLabel, mondayOf } fr
 import { MUSCLE_GROUP_LABELS } from '../types/catalogue'
 import type { DayHistoryResponse } from '../types/history'
 import type { WeeklyMuscleVolumeResponse } from '../types/volume'
+import type { DashboardButtonDef } from './DashboardScreen'
+import { DashboardScreen } from './DashboardScreen'
 import { HeaderWithBack } from './HeaderWithBack'
 import { HistoryActivityLogRow } from './HistoryActivityLogRow'
 import { HistoryWorkoutCard } from './HistoryWorkoutCard'
-import { SegmentedTabs } from './SegmentedTabs'
 
 interface TrainingScreenProps {
   onClose: () => void
 }
 
-type TrainingTab = 'sessions' | 'volume'
+type TrainingSubScreen = 'sessions' | 'volume'
 
-const TRAINING_TABS: { value: TrainingTab; label: string }[] = [
-  { value: 'sessions', label: 'Séances' },
-  { value: 'volume', label: 'Volume' },
-]
-
-function SessionsTab() {
+function SessionsScreen({ onBack }: { onBack: () => void }) {
   const [selectedDate, setSelectedDate] = useState(() => formatDateISO(new Date()))
   const [history, setHistory] = useState<DayHistoryResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -41,7 +37,9 @@ function SessionsTab() {
     history !== null && history.workout_sessions.length === 0 && history.activity_logs.length === 0
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      <HeaderWithBack title="Séances du jour" onBack={onBack} />
+
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -78,7 +76,7 @@ function SessionsTab() {
   )
 }
 
-function VolumeTab() {
+function VolumeScreen({ onBack }: { onBack: () => void }) {
   const [weekStart, setWeekStart] = useState(() => formatDateISO(mondayOf(new Date())))
   const [data, setData] = useState<WeeklyMuscleVolumeResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -97,7 +95,9 @@ function VolumeTab() {
   const maxDailyCalories = data ? Math.max(1, ...data.daily_calories.map((d) => d.calories_kcal)) : 1
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
+      <HeaderWithBack title="Volume hebdomadaire" onBack={onBack} />
+
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -175,17 +175,15 @@ function VolumeTab() {
 }
 
 export function TrainingScreen({ onClose }: TrainingScreenProps) {
-  const [tab, setTab] = useState<TrainingTab>('sessions')
+  const [subScreen, setSubScreen] = useState<TrainingSubScreen | null>(null)
 
-  return (
-    <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
-      <HeaderWithBack title="Entraînement" onBack={onClose} />
+  if (subScreen === 'sessions') return <SessionsScreen onBack={() => setSubScreen(null)} />
+  if (subScreen === 'volume') return <VolumeScreen onBack={() => setSubScreen(null)} />
 
-      <SegmentedTabs options={TRAINING_TABS} value={tab} onChange={setTab} />
+  const buttons: DashboardButtonDef[] = [
+    { key: 'sessions', label: 'Séances du jour', icon: '🏋️', onClick: () => setSubScreen('sessions') },
+    { key: 'volume', label: 'Volume hebdomadaire', icon: '📊', onClick: () => setSubScreen('volume') },
+  ]
 
-      <div className="mt-2">
-        {tab === 'sessions' ? <SessionsTab /> : <VolumeTab />}
-      </div>
-    </div>
-  )
+  return <DashboardScreen title="Entraînement" onBack={onClose} buttons={buttons} />
 }
