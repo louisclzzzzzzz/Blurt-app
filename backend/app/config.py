@@ -1,7 +1,8 @@
 from functools import lru_cache
+from typing import Annotated
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -22,12 +23,12 @@ class Settings(BaseSettings):
     supabase_service_role_key: str
     supabase_storage_bucket: str = "voice-captures"
 
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_cors_origins(cls, value):
-        if isinstance(value, str) and not value.startswith("["):
+        if isinstance(value, str):
             return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
         return value
 
