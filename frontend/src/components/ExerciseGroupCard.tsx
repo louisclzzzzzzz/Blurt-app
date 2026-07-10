@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { EditableExerciseGroup, EditableSet, ExerciseResolution } from '../types/capture'
+import { EditPencilButton } from './EditPencilButton'
 
 interface ExerciseGroupCardProps {
   group: EditableExerciseGroup
@@ -11,12 +13,31 @@ function emptySet(): EditableSet {
 }
 
 export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCardProps) {
+  const [isEditing, setIsEditing] = useState(false)
   if (group.removed) return null
 
   const groupName = `exercise-${group.spoken_exercise_name}`
   const setResolution = (resolution: ExerciseResolution) => onChange({ ...group, resolution })
   const selectedExerciseId = group.resolution.type === 'existing' ? group.resolution.exerciseId : null
+  const selectedCandidate = group.candidates.find((c) => c.exercise_id === selectedExerciseId) ?? null
   const isCreatingNew = group.resolution.type === 'create_new'
+  const hasAlternatives = group.candidates.length > 0
+
+  // Pas de liste de suggestions par défaut : on affiche directement la résolution
+  // retenue (match exact ou nouvel exercice). L'icône de modification révèle les
+  // alternatives pour corriger à la main si ce n'est pas la bonne.
+  const resolutionSummary =
+    group.resolution.type === 'existing' && selectedCandidate ? (
+      <p className="text-sm">
+        <span className="text-neutral-500">Exercice reconnu : </span>
+        <span className="font-medium">{selectedCandidate.name}</span>
+      </p>
+    ) : (
+      <p className="text-sm">
+        <span className="text-neutral-500">Nouvel exercice : </span>
+        <span className="font-medium">{group.spoken_exercise_name}</span>
+      </p>
+    )
 
   const updateSet = (index: number, updated: EditableSet) => {
     onChange({ ...group, sets: group.sets.map((s, i) => (i === index ? updated : s)) })
@@ -52,7 +73,12 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
         </button>
       </div>
 
-      {group.candidates.length > 0 && (
+      <div className="flex items-center justify-between gap-2">
+        {resolutionSummary}
+        {hasAlternatives && <EditPencilButton active={isEditing} onClick={() => setIsEditing((v) => !v)} />}
+      </div>
+
+      {isEditing && group.candidates.length > 0 && (
         <div className="flex flex-col gap-1">
           <p className="text-xs text-neutral-500">
             Correspondance{group.candidates.length > 1 ? 's possibles' : ''} :
@@ -71,15 +97,17 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
         </div>
       )}
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="radio"
-          name={groupName}
-          checked={isCreatingNew}
-          onChange={() => setResolution({ type: 'create_new' })}
-        />
-        Nouvel exercice : « {group.spoken_exercise_name} »
-      </label>
+      {isEditing && (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name={groupName}
+            checked={isCreatingNew}
+            onChange={() => setResolution({ type: 'create_new' })}
+          />
+          Nouvel exercice : « {group.spoken_exercise_name} »
+        </label>
+      )}
 
       <div className="flex flex-col gap-2">
         <p className="text-xs text-neutral-500">

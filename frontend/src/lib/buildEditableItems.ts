@@ -83,12 +83,14 @@ export function buildEditableExerciseGroups(response: CaptureCreateResponse): Ed
     let groupIndex = indexByName.get(key)
 
     if (groupIndex === undefined) {
-      let resolution: ExerciseResolution = { type: 'unresolved' }
+      // Comme pour les aliments : pas de liste de suggestions par défaut. Confiance
+      // "haute" -> on lie directement à l'exercice connu. Sinon ("ambiguë" ou "none")
+      // -> nouvel exercice par défaut plutôt que de deviner parmi des candidats
+      // incertains. L'icône d'édition dans ExerciseGroupCard permet de corriger à
+      // la main si ce n'est pas la bonne résolution.
+      let resolution: ExerciseResolution = { type: 'create_new' }
       if (item.match_confidence === 'high' && item.candidates[0]) {
         resolution = { type: 'existing', exerciseId: item.candidates[0].exercise_id }
-      } else if (item.match_confidence === 'none') {
-        // Aucun candidat : création automatique, pas de confirmation nécessaire (cf. plan).
-        resolution = { type: 'create_new' }
       }
       groupIndex = groups.length
       indexByName.set(key, groupIndex)
