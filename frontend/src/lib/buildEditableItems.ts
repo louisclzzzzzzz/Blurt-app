@@ -14,11 +14,13 @@ export function buildEditableItems(response: CaptureCreateResponse): EditableIte
     let quantityGrams = item.quantity_grams
     let quantityUnits = item.quantity_units
 
-    // Confiance "haute" ou "ambiguë" : on retient par défaut la correspondance
-    // la plus probable (candidates[0], trié par score décroissant côté backend)
-    // plutôt que de forcer un choix — les autres propositions restent visibles
-    // et modifiables dans FoodItemRow si ce n'est pas la bonne.
-    if ((item.match_confidence === 'high' || item.match_confidence === 'ambiguous') && item.candidates[0]) {
+    // La transcription est fiable : on ne propose jamais une liste de "did you
+    // mean" par défaut. Confiance "haute" (match quasi exact) -> on lie
+    // directement à l'aliment connu. Sinon ("ambiguë" ou "none") -> on part du
+    // principe que c'est un nouvel aliment plutôt que de deviner parmi des
+    // candidats incertains. Dans tous les cas, l'icône d'édition dans
+    // FoodItemRow permet de corriger à la main si ce n'est pas la bonne résolution.
+    if (item.match_confidence === 'high' && item.candidates[0]) {
       resolution = { type: 'existing', foodItemId: item.candidates[0].food_item_id }
       const portion = item.candidates[0].default_portion_grams
       // Aucun poids dicté mais une portion usuelle connue (ex: "1 pomme" = 180g) :
@@ -45,6 +47,13 @@ export function buildEditableItems(response: CaptureCreateResponse): EditableIte
           fiber_g: item.dictated_macros.fiber_g,
           salt_g: item.dictated_macros.salt_g,
         },
+      }
+    } else {
+      // Pas de match exact : nouvel aliment par défaut, à corriger à la main
+      // via l'icône d'édition si l'utilisateur voulait en fait un aliment existant.
+      resolution = {
+        type: 'create_new',
+        food: { name: item.spoken_name, is_packaged: item.is_packaged_product, energy_kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
       }
     }
 
