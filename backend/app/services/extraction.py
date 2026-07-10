@@ -18,7 +18,7 @@ Pour chaque série de musculation : un item par série si plusieurs sont dictée
 
 Pour chaque série de musculation et chaque activité cardio/autre : remplis met_estimate d'après tes connaissances générales de l'intensité typique de cet effort (cf. description du champ) — utile uniquement la première fois qu'un exercice/activité est rencontré, une estimation raisonnable suffit.
 
-Pour chaque série de musculation : remplis aussi target_muscles_estimate avec les groupes musculaires principalement ciblés par l'exercice, d'après tes connaissances générales (cf. description du champ) — même logique que met_estimate, une estimation raisonnable suffit, ne redemande jamais à l'utilisateur.
+Pour chaque série de musculation : remplis aussi target_muscles_estimate avec les groupes musculaires ciblés par l'exercice — si l'utilisateur les mentionne explicitement dans sa dictée (ex: "développé couché, ça cible les pecs et les triceps"), reprends exactement ce qu'il dit ; sinon, déduis-les toi-même d'après tes connaissances générales de l'exercice (cf. description du champ). Dans les deux cas, ne redemande jamais à l'utilisateur.
 
 Ton rôle est uniquement l'extraction : ne devine jamais une correspondance avec un aliment ou exercice existant, ne complète jamais une donnée non dictée (hormis met_estimate et target_muscles_estimate, qui sont des estimations générales et non des correspondances)."""
 

@@ -64,6 +64,7 @@ export interface PendingStrengthSetItem {
   weight_kg: number | null
   rir: number | null
   met_estimate: number | null
+  target_muscles_estimate: string[]
   match_confidence: MatchConfidence
   candidates: ExerciseCandidate[]
 }
@@ -119,6 +120,7 @@ export interface ValidatedStrengthSetItem {
   weight_kg?: number | null
   rir?: number | null
   met_estimate?: number | null
+  target_muscles_estimate?: string[]
   exercise_id?: string | null
 }
 
@@ -229,6 +231,7 @@ export interface EditableExerciseGroup {
   sets: EditableSet[]
   removed: boolean
   metEstimate: number | null
+  targetMusclesEstimate: string[]
 }
 
 export type ActivityResolution =

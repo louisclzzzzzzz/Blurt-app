@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { EditableItem, ItemResolution, NewFoodInput, OffCandidate } from '../types/capture'
+import { EditPencilButton } from './EditPencilButton'
 import { NewFoodForm } from './NewFoodForm'
 
 interface FoodItemRowProps {
@@ -27,23 +29,8 @@ function newFoodFromOff(candidate: OffCandidate): NewFoodInput {
   }
 }
 
-function newFoodFromDictated(item: EditableItem): NewFoodInput {
-  const m = item.dictated_macros
-  if (!m) return emptyNewFood(item.spoken_name)
-  return {
-    name: item.spoken_name,
-    energy_kcal: m.energy_kcal,
-    protein_g: m.protein_g,
-    carbs_g: m.carbs_g,
-    fat_g: m.fat_g,
-    saturated_fat_g: m.saturated_fat_g,
-    sugars_g: m.sugars_g,
-    fiber_g: m.fiber_g,
-    salt_g: m.salt_g,
-  }
-}
-
 export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
+  const [isEditing, setIsEditing] = useState(false)
   if (item.removed) return null
 
   const groupName = `resolution-${item.spoken_name}`
@@ -144,12 +131,38 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
     )
   }
 
+  const hasAlternatives = item.candidates.length > 0 || item.off_candidates.length > 0
+
+  // Pas de liste de suggestions par défaut : la transcription est fiable, on
+  // affiche directement la résolution retenue (match exact ou nouvel aliment).
+  // L'icône de modification révèle les alternatives pour corriger à la main
+  // si ce n'est pas la bonne.
+  const resolutionSummary =
+    item.resolution.type === 'existing' && selectedCandidate ? (
+      <p className="text-sm">
+        <span className="text-neutral-500">Aliment reconnu : </span>
+        <span className="font-medium">{selectedCandidate.name}</span>
+        {selectedCandidate.brand ? ` (${selectedCandidate.brand})` : ''}
+      </p>
+    ) : item.resolution.type === 'create_new' ? (
+      <p className="text-sm">
+        <span className="text-neutral-500">Nouvel aliment : </span>
+        <span className="font-medium">{item.resolution.food.name || item.spoken_name}</span>
+        {item.resolution.food.brand ? ` (${item.resolution.food.brand})` : ''}
+      </p>
+    ) : null
+
   return (
     <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
       {header}
       {quantityField}
 
-      {item.candidates.length > 0 && (
+      <div className="flex items-center justify-between gap-2">
+        {resolutionSummary}
+        {hasAlternatives && <EditPencilButton active={isEditing} onClick={() => setIsEditing((v) => !v)} />}
+      </div>
+
+      {isEditing && item.candidates.length > 0 && (
         <div className="flex flex-col gap-1">
           <p className="text-xs text-neutral-500">
             Correspondance{item.candidates.length > 1 ? 's possibles' : ''} :
@@ -168,7 +181,7 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
         </div>
       )}
 
-      {item.off_candidates.length > 0 && (
+      {isEditing && item.off_candidates.length > 0 && (
         <div className="flex flex-col gap-1">
           <p className="text-xs text-neutral-500">Trouvé sur Open Food Facts :</p>
           {item.off_candidates.map((c) => (
@@ -185,22 +198,19 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
         </div>
       )}
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="radio"
-          name={groupName}
-          checked={isManualSelected}
-          onChange={() =>
-            setResolution({
-              type: 'create_new',
-              food: item.dictated_macros ? newFoodFromDictated(item) : emptyNewFood(item.spoken_name),
-            })
-          }
-        />
-        Nouvel aliment{item.dictated_macros ? ' (macros dictées)' : ' (saisie manuelle)'}
-      </label>
+      {isEditing && (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name={groupName}
+            checked={isManualSelected}
+            onChange={() => setResolution({ type: 'create_new', food: emptyNewFood(item.spoken_name) })}
+          />
+          Nouvel aliment (saisie manuelle)
+        </label>
+      )}
 
-      {isManualSelected && item.resolution.type === 'create_new' && (
+      {item.resolution.type === 'create_new' && (
         <NewFoodForm
           food={item.resolution.food}
           onChange={(food) => setResolution({ type: 'create_new', food })}

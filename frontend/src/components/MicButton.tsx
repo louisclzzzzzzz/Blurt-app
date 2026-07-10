@@ -21,13 +21,14 @@ function extensionFor(mimeType: string): string {
 
 export function MicButton({ onRecorded, onListeningChange, disabled }: MicButtonProps) {
   const { state, error, start, stop } = useAudioRecorder()
+  const recording = state === 'recording'
 
   useEffect(() => {
-    onListeningChange?.(state === 'recording')
-  }, [state, onListeningChange])
+    onListeningChange?.(recording)
+  }, [recording, onListeningChange])
 
   const handleClick = async () => {
-    if (state === 'recording') {
+    if (recording) {
       const result = await stop()
       if (result) {
         onRecorded(result.blob, `capture.${extensionFor(result.mimeType)}`)
@@ -38,26 +39,38 @@ export function MicButton({ onRecorded, onListeningChange, disabled }: MicButton
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
       <button
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className={`relative size-24 shrink-0 disabled:opacity-40 press-effect ${
-          state === 'recording' ? 'animate-pulse drop-shadow-[0_0_16px_rgba(242,169,60,0.8)]' : ''
+        className={`relative w-[clamp(120px,32vw,190px)] h-[clamp(120px,32vw,190px)] shrink-0 disabled:opacity-40 press-effect ${
+          recording ? '' : 'animate-mic-bounce'
         }`}
-        aria-label={state === 'recording' ? 'Arrêter la dictée' : 'Démarrer la dictée'}
+        aria-label={recording ? 'Arrêter la dictée' : 'Démarrer la dictée'}
       >
+        <span
+          className={`absolute inset-[-22%] rounded-full mic-glow ${
+            recording
+              ? 'bg-[radial-gradient(circle,rgba(239,68,68,0.55)_0%,transparent_70%)]'
+              : 'bg-[radial-gradient(circle,rgba(242,169,60,0.55)_0%,transparent_70%)]'
+          }`}
+        />
         <img
           src="/images/front/mic.svg"
-          alt={state === 'recording' ? 'Arrêter la dictée' : 'Démarrer la dictée'}
+          alt={recording ? 'Arrêter la dictée' : 'Démarrer la dictée'}
           draggable={false}
-          className="w-full h-full [image-rendering:pixelated] select-none"
+          className="relative w-full h-full [image-rendering:pixelated] select-none"
         />
-        {state === 'recording' && (
+        {recording && (
           <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 border-2 border-[#2b1e06] animate-pulse" />
         )}
       </button>
+      {!recording && !disabled && (
+        <p className="font-pixel text-[10px] text-white text-pixel-outline text-center animate-pulse">
+          Appuyer pour enregistrer
+        </p>
+      )}
       {error && <p className="text-sm text-red-500 max-w-xs text-center">{error}</p>}
     </div>
   )
