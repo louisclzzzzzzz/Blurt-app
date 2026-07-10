@@ -101,6 +101,7 @@ export function buildEditableExerciseGroups(response: CaptureCreateResponse): Ed
         sets: [],
         removed: false,
         metEstimate: item.met_estimate,
+        targetMusclesEstimate: item.target_muscles_estimate,
       })
     }
 
