@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createCapture, getHealth } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
+import { LoadingScreen } from './components/LoadingScreen'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
 import { NutritionScreen } from './components/NutritionScreen'
@@ -21,10 +22,15 @@ function App() {
   const [lastResult, setLastResult] = useState<ValidateCaptureResponse | null>(null)
   const [screen, setScreen] = useState<Screen>('capture')
 
-  useEffect(() => {
+  const checkBackendHealth = () => {
+    setBackendStatus('checking')
     getHealth()
       .then(() => setBackendStatus('ok'))
       .catch(() => setBackendStatus('error'))
+  }
+
+  useEffect(() => {
+    checkBackendHealth()
   }, [])
 
   // Retour automatique au micro après confirmation, pour ne pas exiger un tap
@@ -146,6 +152,10 @@ function App() {
           </div>
         )
     }
+  }
+
+  if (backendStatus !== 'ok') {
+    return <LoadingScreen status={backendStatus} onRetry={checkBackendHealth} />
   }
 
   return (
