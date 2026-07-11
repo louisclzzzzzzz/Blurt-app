@@ -96,7 +96,7 @@ function App() {
           <div className="relative isolate min-h-svh flex flex-col overflow-hidden">
             <CharacterDisplay
               state={characterState}
-              className="absolute inset-0 w-full h-full object-cover -z-10"
+              className="absolute inset-0 w-full h-full -z-10"
             />
 
             <div className="flex flex-col items-center gap-2 pt-[6%] px-4">

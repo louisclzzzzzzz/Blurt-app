@@ -1,13 +1,11 @@
 export type CharacterState = 'idle' | 'listening' | 'processing' | 'confirming'
 
-// Une entrée par état, actuellement des .png — le composant ne connaît que
-// "un état -> une source", donc passer une entrée en .webm/.gif plus tard
-// (avec un <video>/<img> adapté) ne change pas cette logique.
+// Une entrée par état — boucle vidéo silencieuse (10s, 1080x1920).
 const DEFAULT_SOURCES: Record<CharacterState, string> = {
-  idle: '/images/front/druide1.png',
-  listening: '/images/front/druide2.png',
-  processing: '/images/front/druide3.png',
-  confirming: '/images/front/druide4.png',
+  idle: '/images/front/anim-idle.mp4',
+  listening: '/images/front/anim-listening.mp4',
+  processing: '/images/front/anim-processing.mp4',
+  confirming: '/images/front/anim-confirming.mp4',
 }
 
 interface CharacterDisplayProps {
@@ -20,12 +18,16 @@ export function CharacterDisplay({ state, sources, className }: CharacterDisplay
   const src = sources?.[state] ?? DEFAULT_SOURCES[state]
 
   return (
-    <img
+    <video
       key={state}
       src={src}
-      alt={`Druide — ${state}`}
-      draggable={false}
-      className={`[image-rendering:pixelated] select-none ${className ?? ''}`}
+      autoPlay
+      loop
+      muted
+      playsInline
+      disablePictureInPicture
+      aria-label={`Druide — ${state}`}
+      className={`object-cover select-none ${className ?? ''}`}
     />
   )
 }
