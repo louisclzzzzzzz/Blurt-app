@@ -3,6 +3,7 @@ import { createCapture, getHealth } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
 import type { CharacterState } from './components/CharacterDisplay'
 import { CharacterDisplay } from './components/CharacterDisplay'
+import { LoadingScreen } from './components/LoadingScreen'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
 import { NutritionScreen } from './components/NutritionScreen'
@@ -33,10 +34,15 @@ function App() {
     return 'idle'
   }, [flow, isListening])
 
-  useEffect(() => {
+  const checkBackendHealth = () => {
+    setBackendStatus('checking')
     getHealth()
       .then(() => setBackendStatus('ok'))
       .catch(() => setBackendStatus('error'))
+  }
+
+  useEffect(() => {
+    checkBackendHealth()
   }, [])
 
   const handleRecorded = async (blob: Blob, filename: string) => {
@@ -159,6 +165,10 @@ function App() {
           </div>
         )
     }
+  }
+
+  if (backendStatus !== 'ok') {
+    return <LoadingScreen status={backendStatus} onRetry={checkBackendHealth} />
   }
 
   return (
