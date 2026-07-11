@@ -16,6 +16,11 @@ export default defineConfig({
       // /api doivent toujours passer par le réseau, jamais depuis un cache.
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        // Les images de contenu (public/images/**) ne sont pas précachées :
+        // certaines dépassent la limite Workbox de 2 MiB par fichier, ce qui
+        // fait échouer le build. Elles ne sont pas nécessaires à l'app shell
+        // offline et restent chargées à la demande via le réseau normal.
+        globIgnores: ['images/**'],
       },
       manifest: {
         name: 'Vox App — suivi sportif vocal',
