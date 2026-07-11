@@ -39,6 +39,18 @@ function App() {
       .catch(() => setBackendStatus('error'))
   }, [])
 
+  // Retour automatique au micro après confirmation, pour ne pas exiger un tap
+  // "Nouvelle dictée" à chaque cycle de capture répété (repas suivant, série suivante...).
+  useEffect(() => {
+    if (flow !== 'done') return
+    const timer = setTimeout(() => {
+      setCapture(null)
+      setLastResult(null)
+      setFlow('idle')
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [flow])
+
   const handleRecorded = async (blob: Blob, filename: string) => {
     setFlow('uploading')
     setErrorMessage(null)
