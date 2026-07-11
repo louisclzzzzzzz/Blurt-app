@@ -19,6 +19,17 @@ function extensionFor(mimeType: string): string {
   return EXTENSION_BY_MIME[base] ?? 'webm'
 }
 
+function MicIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function MicButton({ onRecorded, onListeningChange, disabled }: MicButtonProps) {
   const { state, error, start, stop } = useAudioRecorder()
   const recording = state === 'recording'
@@ -44,32 +55,25 @@ export function MicButton({ onRecorded, onListeningChange, disabled }: MicButton
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className={`relative w-[clamp(120px,32vw,190px)] h-[clamp(120px,32vw,190px)] shrink-0 disabled:opacity-40 press-effect ${
-          recording ? '' : 'animate-mic-bounce'
-        }`}
+        className="relative flex items-center justify-center size-32 shrink-0 disabled:opacity-40 press-effect"
         aria-label={recording ? 'Arrêter la dictée' : 'Démarrer la dictée'}
       >
+        {!recording && (
+          <span className="absolute inset-[-15%] rounded-full mic-glow bg-blue-500/15" />
+        )}
         <span
-          className={`absolute inset-[-22%] rounded-full mic-glow ${
-            recording
-              ? 'bg-[radial-gradient(circle,rgba(239,68,68,0.55)_0%,transparent_70%)]'
-              : 'bg-[radial-gradient(circle,rgba(242,169,60,0.55)_0%,transparent_70%)]'
+          className={`relative flex items-center justify-center size-full rounded-full shadow-md transition-colors ${
+            recording ? 'bg-red-600' : 'bg-blue-600'
           }`}
-        />
-        <img
-          src="/images/front/mic.svg"
-          alt={recording ? 'Arrêter la dictée' : 'Démarrer la dictée'}
-          draggable={false}
-          className="relative w-full h-full [image-rendering:pixelated] select-none"
-        />
+        >
+          <MicIcon className="size-12 text-white" />
+        </span>
         {recording && (
-          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 border-2 border-[#2b1e06] animate-pulse" />
+          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 border-2 border-neutral-50 dark:border-neutral-950 animate-pulse" />
         )}
       </button>
       {!recording && !disabled && (
-        <p className="font-pixel text-[10px] text-white text-pixel-outline text-center animate-pulse">
-          Appuyer pour enregistrer
-        </p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">Appuyer pour enregistrer</p>
       )}
       {error && <p className="text-sm text-red-500 max-w-xs text-center">{error}</p>}
     </div>

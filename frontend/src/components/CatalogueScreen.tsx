@@ -16,9 +16,9 @@ const DOMAIN_LABELS: Record<CatalogueDomain, string> = {
 }
 
 const DOMAIN_ICONS: Record<CatalogueDomain, string> = {
-  food: '/images/objets/boutons/ref_meal_icone.png',
-  exercise: '/images/objets/boutons/ref_training_icone.png',
-  activity: '/images/objets/boutons/ref_activity_icone.png',
+  food: '🍎',
+  exercise: '🏋️',
+  activity: '🏃',
 }
 
 export function CatalogueScreen({ onClose }: CatalogueScreenProps) {

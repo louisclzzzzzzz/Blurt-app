@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getHistory, getProfile } from '../api/client'
-import { useCoverAnchor } from '../hooks/useCoverAnchor'
 import { addDays, formatDateISO, formatDateLabel } from '../lib/dateNav'
 import type { UserProfile } from '../types/capture'
 import type { DayHistoryResponse } from '../types/history'
+import type { DashboardButtonDef } from './DashboardScreen'
+import { DashboardScreen } from './DashboardScreen'
 import { HeaderWithBack } from './HeaderWithBack'
 import { HistoryMealCard } from './HistoryMealCard'
 import { NutritionGoalsScreen } from './NutritionGoalsScreen'
@@ -14,85 +15,6 @@ interface NutritionScreenProps {
 }
 
 type NutritionSubScreen = 'meals' | 'summary' | 'goals'
-
-interface ShelfButtonDef {
-  key: string
-  label: string
-  icon: string
-  /** Ancrage en % de la scène (centre de l'icône). */
-  xPercent: number
-  yPercent: number
-  /** Multiplicateur de taille — compense les icônes dont le dessin occupe moins de place dans son canevas. */
-  sizeMultiplier: number
-  onClick: () => void
-}
-
-const SHELF_BUTTONS_ANCHORS: Omit<ShelfButtonDef, 'onClick'>[] = [
-  { key: 'meals', label: 'Repas', icon: '/images/objets/boutons/meal_icone.png', xPercent: 22, yPercent: 29, sizeMultiplier: 1 },
-  { key: 'summary', label: 'Macros', icon: '/images/objets/boutons/macro_icone.png', xPercent: 50, yPercent: 29, sizeMultiplier: 1.45 },
-  { key: 'goals', label: 'Objectifs', icon: '/images/objets/boutons/goal_icone.png', xPercent: 78, yPercent: 29, sizeMultiplier: 1 },
-]
-
-function KitchenScene({
-  onBack,
-  onSelectMeals,
-  onSelectSummary,
-  onSelectGoals,
-}: {
-  onBack: () => void
-  onSelectMeals: () => void
-  onSelectSummary: () => void
-  onSelectGoals: () => void
-}) {
-  const handlers: Record<string, () => void> = {
-    meals: onSelectMeals,
-    summary: onSelectSummary,
-    goals: onSelectGoals,
-  }
-  const buttons: ShelfButtonDef[] = SHELF_BUTTONS_ANCHORS.map((b) => ({ ...b, onClick: handlers[b.key] }))
-  // Dimensions réelles de kitchen2.png : l'ancrage % est calculé sur l'image d'origine,
-  // pas sur le viewport, pour rester exact quel que soit le format d'écran (cf. useCoverAnchor).
-  const { containerRef, anchorStyle, scale } = useCoverAnchor(1536, 2752)
-  const baseIconSize = scale * 460
-
-  return (
-    <div ref={containerRef} className="relative isolate min-h-svh overflow-hidden">
-      <img
-        src="/images/menus/nutri/kitchen2.png"
-        alt=""
-        draggable={false}
-        className="absolute inset-0 w-full h-full object-cover -z-10 select-none [image-rendering:pixelated]"
-      />
-
-      <div className="flex items-center gap-3 px-4 pt-4">
-        <button onClick={onBack} className="text-2xl text-white drop-shadow press-effect" aria-label="Retour">
-          ←
-        </button>
-        <h2 className="font-pixel text-xs text-white text-pixel-outline">Nutrition</h2>
-      </div>
-
-      {buttons.map((b) => (
-        <button
-          key={b.key}
-          type="button"
-          onClick={b.onClick}
-          style={{ ...anchorStyle(b.xPercent, b.yPercent), width: Math.max(84, baseIconSize * b.sizeMultiplier) }}
-          className="flex flex-col items-center gap-1 press-effect transition-transform duration-200 ease-out hover:scale-110 active:scale-95"
-        >
-          <span className="font-pixel text-[9px] leading-tight text-white text-pixel-outline text-center">
-            {b.label}
-          </span>
-          <img
-            src={b.icon}
-            alt=""
-            draggable={false}
-            className="w-full h-auto aspect-square object-contain [image-rendering:pixelated] select-none drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]"
-          />
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function MealsScreen({ onBack }: { onBack: () => void }) {
   const [selectedDate, setSelectedDate] = useState(() => formatDateISO(new Date()))
@@ -209,12 +131,11 @@ export function NutritionScreen({ onClose }: NutritionScreenProps) {
   if (subScreen === 'summary') return <SummaryScreen onBack={() => setSubScreen(null)} />
   if (subScreen === 'goals') return <NutritionGoalsScreen onBack={() => setSubScreen(null)} />
 
-  return (
-    <KitchenScene
-      onBack={onClose}
-      onSelectMeals={() => setSubScreen('meals')}
-      onSelectSummary={() => setSubScreen('summary')}
-      onSelectGoals={() => setSubScreen('goals')}
-    />
-  )
+  const buttons: DashboardButtonDef[] = [
+    { key: 'meals', label: 'Repas', icon: '🍽️', onClick: () => setSubScreen('meals') },
+    { key: 'summary', label: 'Macros', icon: '📊', onClick: () => setSubScreen('summary') },
+    { key: 'goals', label: 'Objectifs', icon: '🎯', onClick: () => setSubScreen('goals') },
+  ]
+
+  return <DashboardScreen title="Nutrition" onBack={onClose} buttons={buttons} />
 }
