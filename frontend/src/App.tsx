@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createCapture, getHealth } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
-import type { CharacterState } from './components/CharacterDisplay'
-import { CharacterDisplay } from './components/CharacterDisplay'
 import { LoadingScreen } from './components/LoadingScreen'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
@@ -23,16 +21,6 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<ValidateCaptureResponse | null>(null)
   const [screen, setScreen] = useState<Screen>('capture')
-  const [isListening, setIsListening] = useState(false)
-
-  // Le personnage reflète le pipeline de capture réel là où l'info existe déjà
-  // (flow d'upload/validation) ; "listening" vient de l'état du micro (MicButton).
-  const characterState: CharacterState = useMemo(() => {
-    if (flow === 'uploading') return 'processing'
-    if (flow === 'validating') return 'confirming'
-    if (isListening) return 'listening'
-    return 'idle'
-  }, [flow, isListening])
 
   const checkBackendHealth = () => {
     setBackendStatus('checking')
@@ -93,52 +81,39 @@ function App() {
         return <CatalogueScreen onClose={() => setScreen('capture')} />
       default:
         return (
-          <div className="relative isolate min-h-svh flex flex-col overflow-hidden">
-            <CharacterDisplay
-              state={characterState}
-              className="absolute inset-0 w-full h-full object-cover -z-10"
-            />
-
-            <div className="flex flex-col items-center gap-2 pt-[6%] px-4">
-              <h1 className="font-pixel text-pixel-outline text-[clamp(2rem,10vw,3.25rem)] leading-none text-center bg-gradient-to-b from-[#a9c98f] to-[#5f7f4c] bg-clip-text text-transparent">
-                Blurt
-              </h1>
+          <div className="flex flex-col min-h-full w-full max-w-md mx-auto px-4 py-6">
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">Blurt</h1>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+                <span
+                  className={`inline-block size-2 rounded-full ${
+                    backendStatus === 'ok'
+                      ? 'bg-green-500'
+                      : backendStatus === 'error'
+                        ? 'bg-red-500'
+                        : 'bg-neutral-400 animate-pulse'
+                  }`}
+                />
+                {backendStatus === 'checking' && 'Connexion...'}
+                {backendStatus === 'ok' && 'Connecté'}
+                {backendStatus === 'error' && 'Hors ligne'}
+              </div>
             </div>
 
-            {flow === 'idle' && (
-              <div className="flex flex-col items-center gap-3 pt-2 px-4">
-                <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
-                <div className="text-xs text-neutral-200 flex items-center gap-2 drop-shadow">
-                  <span
-                    className={`inline-block size-2 rounded-full ${
-                      backendStatus === 'ok'
-                        ? 'bg-green-500'
-                        : backendStatus === 'error'
-                          ? 'bg-red-500'
-                          : 'bg-neutral-400 animate-pulse'
-                    }`}
-                  />
-                  {backendStatus === 'checking' && 'Connexion...'}
-                  {backendStatus === 'ok' && 'Connecté'}
-                  {backendStatus === 'error' && 'Hors ligne'}
-                </div>
-              </div>
-            )}
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
+              {flow === 'idle' && <MicButton onRecorded={handleRecorded} />}
 
-            <div className="flex-1" />
-
-            <div className="flex flex-col items-center gap-4 px-4 pb-24">
               {flow === 'uploading' && (
-                <p className="text-sm text-neutral-100 animate-pulse drop-shadow">Analyse en cours...</p>
+                <p className="text-sm text-neutral-500 animate-pulse">Analyse en cours...</p>
               )}
 
               {flow === 'error' && (
                 <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm text-red-400 max-w-xs text-center drop-shadow">{errorMessage}</p>
+                  <p className="text-sm text-red-500 max-w-xs text-center">{errorMessage}</p>
                   <button
                     type="button"
                     onClick={reset}
-                    className="rounded-lg border border-neutral-200 text-neutral-50 px-6 py-2 text-sm press-effect bg-black/30"
+                    className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-6 py-2 text-sm press-effect"
                   >
                     Réessayer
                   </button>
@@ -146,7 +121,7 @@ function App() {
               )}
 
               {flow === 'validating' && capture && (
-                <div className="w-full max-w-md rounded-xl bg-neutral-50 dark:bg-neutral-900 p-3 max-h-[70vh] overflow-y-auto mobile-scrollbar shadow-xl">
+                <div className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3 max-h-[70vh] overflow-y-auto mobile-scrollbar">
                   <ValidationScreen
                     capture={capture}
                     onDone={(response) => {
@@ -160,14 +135,14 @@ function App() {
 
               {flow === 'done' && (
                 <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm text-neutral-50 drop-shadow">Enregistré.</p>
+                  <p className="text-sm font-medium">Enregistré.</p>
                   {totalCalories > 0 && (
-                    <p className="text-sm text-neutral-200 drop-shadow">≈ {totalCalories.toFixed(0)} kcal</p>
+                    <p className="text-sm text-neutral-500">≈ {totalCalories.toFixed(0)} kcal</p>
                   )}
                   <button
                     type="button"
                     onClick={reset}
-                    className="rounded-lg bg-blue-600 dark:bg-blue-500 dark:text-white text-white px-6 py-2 text-sm press-effect"
+                    className="rounded-lg bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 text-sm press-effect"
                   >
                     Nouvelle dictée
                   </button>

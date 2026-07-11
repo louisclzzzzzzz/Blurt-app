@@ -184,24 +184,16 @@ export function TrainingScreen({ onClose }: TrainingScreenProps) {
     {
       key: 'sessions',
       label: 'Séances',
-      icon: '/images/objets/boutons/training_icone.png',
+      icon: '🏋️',
       onClick: () => setSubScreen('sessions'),
     },
     {
       key: 'volume',
       label: 'Historique',
-      icon: '/images/objets/boutons/volume_icone.png',
+      icon: '📈',
       onClick: () => setSubScreen('volume'),
     },
   ]
 
-  return (
-    <DashboardScreen
-      title="Entraînement"
-      onBack={onClose}
-      buttons={buttons}
-      background="/images/menus/exo/gym.png"
-      gridClassName="gap-4 px-4 w-full"
-    />
-  )
+  return <DashboardScreen title="Entraînement" onBack={onClose} buttons={buttons} />
 }
