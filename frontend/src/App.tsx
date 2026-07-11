@@ -1,19 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createCapture, createCaptureFromText, getHealth, getHistory, getProfile } from './api/client'
+import { createCapture, getHealth } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
 import type { CharacterState } from './components/CharacterDisplay'
 import { CharacterDisplay } from './components/CharacterDisplay'
-import { DailyStatsSign } from './components/DailyStatsSign'
-import { formatDateISO } from './lib/dateNav'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
 import { NutritionScreen } from './components/NutritionScreen'
 import { ProfileSettings } from './components/ProfileSettings'
-import { TextCaptureInput } from './components/TextCaptureInput'
 import { TrainingScreen } from './components/TrainingScreen'
 import { ValidationScreen } from './components/ValidationScreen'
-import type { CaptureCreateResponse, UserProfile, ValidateCaptureResponse } from './types/capture'
-import type { DayHistoryResponse } from './types/history'
+import type { CaptureCreateResponse, ValidateCaptureResponse } from './types/capture'
 
 type BackendStatus = 'checking' | 'ok' | 'error'
 type FlowState = 'idle' | 'uploading' | 'validating' | 'done' | 'error'
@@ -27,8 +23,6 @@ function App() {
   const [lastResult, setLastResult] = useState<ValidateCaptureResponse | null>(null)
   const [screen, setScreen] = useState<Screen>('capture')
   const [isListening, setIsListening] = useState(false)
-  const [todayHistory, setTodayHistory] = useState<DayHistoryResponse | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
 
   // Le personnage reflète le pipeline de capture réel là où l'info existe déjà
   // (flow d'upload/validation) ; "listening" vient de l'état du micro (MicButton).
@@ -45,34 +39,6 @@ function App() {
       .catch(() => setBackendStatus('error'))
   }, [])
 
-  useEffect(() => {
-    getProfile()
-      .then(setProfile)
-      .catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    getHistory(formatDateISO(new Date()))
-      .then(setTodayHistory)
-      .catch(() => {})
-  }, [flow])
-
-  const consumedKcal = useMemo(
-    () =>
-      todayHistory?.meals.reduce(
-        (sum, meal) => sum + meal.consumptions.reduce((s, c) => s + c.energy_kcal, 0),
-        0,
-      ) ?? 0,
-    [todayHistory],
-  )
-
-  const burnedKcal = useMemo(() => {
-    if (!todayHistory) return 0
-    const workouts = todayHistory.workout_sessions.reduce((s, w) => s + (w.calories_kcal ?? 0), 0)
-    const activities = todayHistory.activity_logs.reduce((s, a) => s + (a.calories_kcal ?? 0), 0)
-    return workouts + activities
-  }, [todayHistory])
-
   const handleRecorded = async (blob: Blob, filename: string) => {
     setFlow('uploading')
     setErrorMessage(null)
@@ -82,19 +48,6 @@ function App() {
       setFlow('validating')
     } catch {
       setErrorMessage("Échec du traitement de la dictée. Vérifie ta connexion et réessaie.")
-      setFlow('error')
-    }
-  }
-
-  const handleTextSubmit = async (transcript: string) => {
-    setFlow('uploading')
-    setErrorMessage(null)
-    try {
-      const response = await createCaptureFromText(transcript)
-      setCapture(response)
-      setFlow('validating')
-    } catch {
-      setErrorMessage("Échec du traitement du texte. Réessaie.")
       setFlow('error')
     }
   }
@@ -132,37 +85,31 @@ function App() {
               <h1 className="font-pixel text-pixel-outline text-[clamp(2rem,10vw,3.25rem)] leading-none text-center bg-gradient-to-b from-[#a9c98f] to-[#5f7f4c] bg-clip-text text-transparent">
                 Blurt
               </h1>
-              <DailyStatsSign
-                consumedKcal={consumedKcal}
-                burnedKcal={burnedKcal}
-                calorieGoalKcal={profile?.calorie_goal_kcal ?? null}
-              />
             </div>
+
+            {flow === 'idle' && (
+              <div className="flex flex-col items-center gap-3 pt-2 px-4">
+                <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
+                <div className="text-xs text-neutral-200 flex items-center gap-2 drop-shadow">
+                  <span
+                    className={`inline-block size-2 rounded-full ${
+                      backendStatus === 'ok'
+                        ? 'bg-green-500'
+                        : backendStatus === 'error'
+                          ? 'bg-red-500'
+                          : 'bg-neutral-400 animate-pulse'
+                    }`}
+                  />
+                  {backendStatus === 'checking' && 'Connexion...'}
+                  {backendStatus === 'ok' && 'Connecté'}
+                  {backendStatus === 'error' && 'Hors ligne'}
+                </div>
+              </div>
+            )}
 
             <div className="flex-1" />
 
             <div className="flex flex-col items-center gap-4 px-4 pb-24">
-              {flow === 'idle' && (
-                <div className="flex flex-col items-center gap-4 w-full">
-                  <MicButton onRecorded={handleRecorded} onListeningChange={setIsListening} />
-                  <TextCaptureInput onSubmit={handleTextSubmit} />
-                  <div className="text-xs text-neutral-200 flex items-center gap-2 drop-shadow">
-                    <span
-                      className={`inline-block size-2 rounded-full ${
-                        backendStatus === 'ok'
-                          ? 'bg-green-500'
-                          : backendStatus === 'error'
-                            ? 'bg-red-500'
-                            : 'bg-neutral-400 animate-pulse'
-                      }`}
-                    />
-                    {backendStatus === 'checking' && 'Connexion...'}
-                    {backendStatus === 'ok' && 'Connecté'}
-                    {backendStatus === 'error' && 'Hors ligne'}
-                  </div>
-                </div>
-              )}
-
               {flow === 'uploading' && (
                 <p className="text-sm text-neutral-100 animate-pulse drop-shadow">Analyse en cours...</p>
               )}

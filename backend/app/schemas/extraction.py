@@ -90,9 +90,10 @@ class ExtractedStrengthSet(BaseModel):
     target_muscles_estimate: list[MuscleGroup] = Field(
         default_factory=list,
         description=(
-            "Groupes musculaires principalement ciblés par cet exercice, d'après tes connaissances "
-            "générales (ex: développé couché -> pectoraux, triceps, epaules ; squat -> quadriceps, "
-            "fessiers, ischios). Estimation silencieuse, jamais redemandée à l'utilisateur."
+            "Groupes musculaires ciblés par cet exercice. Si l'utilisateur les mentionne explicitement "
+            "dans sa dictée, reprends exactement ce qu'il dit. Sinon, déduis-les toi-même d'après tes "
+            "connaissances générales (ex: développé couché -> pectoraux, triceps, epaules ; squat -> "
+            "quadriceps, fessiers, ischios). Dans les deux cas, jamais redemandé à l'utilisateur."
         ),
     )
 

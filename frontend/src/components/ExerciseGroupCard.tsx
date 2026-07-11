@@ -1,4 +1,4 @@
-import type { EditableExerciseGroup, EditableSet, ExerciseResolution } from '../types/capture'
+import type { EditableExerciseGroup, EditableSet } from '../types/capture'
 
 interface ExerciseGroupCardProps {
   group: EditableExerciseGroup
@@ -13,10 +13,21 @@ function emptySet(): EditableSet {
 export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCardProps) {
   if (group.removed) return null
 
-  const groupName = `exercise-${group.spoken_exercise_name}`
-  const setResolution = (resolution: ExerciseResolution) => onChange({ ...group, resolution })
   const selectedExerciseId = group.resolution.type === 'existing' ? group.resolution.exerciseId : null
-  const isCreatingNew = group.resolution.type === 'create_new'
+  const selectedCandidate = group.candidates.find((c) => c.exercise_id === selectedExerciseId) ?? null
+
+  // Aucune sélection de correspondance proposée : soit l'exercice a été
+  // reconnu automatiquement (assigné directement), soit il ne l'a pas été et
+  // c'est un nouvel exercice — jamais de liste à choisir.
+  const resolutionSummary =
+    group.resolution.type === 'existing' && selectedCandidate ? (
+      <p className="text-sm">
+        <span className="text-neutral-500">Correspondance : </span>
+        <span className="font-medium">{selectedCandidate.name}</span>
+      </p>
+    ) : (
+      <p className="text-sm text-neutral-500">Nouvel exercice</p>
+    )
 
   const updateSet = (index: number, updated: EditableSet) => {
     onChange({ ...group, sets: group.sets.map((s, i) => (i === index ? updated : s)) })
@@ -52,34 +63,7 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
         </button>
       </div>
 
-      {group.candidates.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-500">
-            Correspondance{group.candidates.length > 1 ? 's possibles' : ''} :
-          </p>
-          {group.candidates.map((c) => (
-            <label key={c.exercise_id} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name={groupName}
-                checked={selectedExerciseId === c.exercise_id}
-                onChange={() => setResolution({ type: 'existing', exerciseId: c.exercise_id })}
-              />
-              {c.name}
-            </label>
-          ))}
-        </div>
-      )}
-
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="radio"
-          name={groupName}
-          checked={isCreatingNew}
-          onChange={() => setResolution({ type: 'create_new' })}
-        />
-        Nouvel exercice : « {group.spoken_exercise_name} »
-      </label>
+      {resolutionSummary}
 
       <div className="flex flex-col gap-2">
         <p className="text-xs text-neutral-500">

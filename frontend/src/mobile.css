@@ -97,7 +97,41 @@
     transform: scale(0.98);
     opacity: 0.9;
   }
+
+  /* Sautillement lent du micro pour inviter à appuyer. */
+  @keyframes mic-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-mic-bounce {
+    animation: mic-bounce 2.4s ease-in-out infinite;
+  }
+
+  /* Aura pulsante derrière le micro. */
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+  .mic-glow {
+    animation: glow-pulse 2.4s ease-in-out infinite;
+  }
   
+  /* Panneau bois/parchemin façon HUD pixel-art, pour les boutons de tableau de bord. */
+  .dashboard-panel-button {
+    background: linear-gradient(180deg, #e9d9ae 0%, #cfa863 55%, #b98f52 100%);
+    border: 3px solid #6b4a2b;
+    border-radius: 10px;
+    box-shadow:
+      inset 0 0 0 2px rgba(58, 46, 28, 0.2),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),
+      0 3px 0 #4a3423;
+  }
+
+  .dark .dashboard-panel-button {
+    background: linear-gradient(180deg, #8a6c3f 0%, #6e5330 55%, #5b4326 100%);
+    border-color: #3a2e1c;
+  }
+
   /* Card styling for mobile */
   .mobile-card {
     background: white;

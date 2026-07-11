@@ -93,6 +93,7 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
           weight_kg: set.weightKg,
           rir: set.rir,
           met_estimate: group.metEstimate,
+          target_muscles_estimate: group.targetMusclesEstimate,
           exercise_id: group.resolution.type === 'existing' ? group.resolution.exerciseId : undefined,
         })),
       )
