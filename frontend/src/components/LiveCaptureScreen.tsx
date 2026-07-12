@@ -15,10 +15,11 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 /** Pilote dictée live (nutrition uniquement) — cf. DICTEE_LIVE_NUTRITION.md.
- * Phase 7B : la liste d'aliments se construit en direct (add/modify/remove),
- * pas encore de matching catalogue (Phase 7C) ni de FoodItemRow (Phase 7D).
- * Écran additif : ne remplace pas MicButton, qui reste le flux par défaut
- * pour tous les domaines. */
+ * La liste d'aliments se construit en direct (add/modify/remove, Phase 7B),
+ * matching catalogue déjà résolu (Phase 7C) mais pas encore éditable — la
+ * réutilisation de FoodItemRow pour la résolution manuelle vient en Phase
+ * 7D. Écran additif : ne remplace pas MicButton, qui reste le flux par
+ * défaut pour tous les domaines. */
 export function LiveCaptureScreen({ onClose }: LiveCaptureScreenProps) {
   const { status, partialText, draftItems, finalText, error, start, stop } = useLiveCapture()
 
@@ -54,6 +55,12 @@ export function LiveCaptureScreen({ onClose }: LiveCaptureScreenProps) {
             <p className="font-medium text-sm">{item.spoken_name}</p>
             {item.quantity_description && (
               <p className="text-xs text-neutral-500">{item.quantity_description}</p>
+            )}
+            {item.match_confidence === 'high' && item.candidates[0] && (
+              <p className="text-xs text-neutral-500">
+                Reconnu : {item.candidates[0].name}
+                {item.candidates[0].brand ? ` (${item.candidates[0].brand})` : ''}
+              </p>
             )}
           </div>
         ))}

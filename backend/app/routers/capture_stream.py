@@ -20,7 +20,9 @@ from app.models.base import utcnow
 from app.models.capture_draft_item import CaptureDraftItem
 from app.models.enums import CaptureStatus, DraftItemStatus
 from app.models.voice_capture import VoiceCapture
-from app.schemas.extraction import DraftItemContext, DraftOperations, ExtractedFood
+from app.routers.captures import _resolve_food_item
+from app.schemas.api import PendingFoodItem
+from app.schemas.extraction import DraftItemContext, DraftOperations
 from app.services.extraction import extract_operations
 from app.services.transcription import stream_realtime_transcription, wrap_pcm_as_wav
 
@@ -42,14 +44,17 @@ SENTENCE_END_CHARS = (".", "!", "?")
 async def stream_capture(websocket: WebSocket, session: AsyncSession = Depends(get_session)) -> None:
     """Dictée nutrition en flux continu (pilote, cf. DICTEE_LIVE_NUTRITION.md).
 
-    Phase 7B : en plus de la transcription brute (7A), chaque segment naturel
-    déclenche une extraction incrémentale (add/modify/remove) écrite dans
-    capture_draft_items et poussée au client. Pas encore de matching
-    catalogue (Phase 7C). Client -> serveur : frames binaires PCM (16-bit LE,
-    16kHz, mono) + un message JSON de contrôle `{"type": "end"}` pour
-    signaler la fin de la dictée. Pas de reprise de session après coupure
-    réseau (hors périmètre pilote) : une déconnexion met fin à la dictée
-    côté serveur, l'audio déjà reçu est tout de même archivé.
+    Chaque segment naturel de la dictée déclenche une extraction incrémentale
+    (add/modify/remove, Phase 7B) puis un matching catalogue sur chaque
+    add/modify (Phase 7C, via _resolve_food_item — même fonction que le flux
+    batch) : le résultat (match_confidence/candidates) est écrit dans
+    capture_draft_items et poussé au client. Fin de session -> validation via
+    POST /captures/{id}/validate, inchangé (Phase 7C). Client -> serveur :
+    frames binaires PCM (16-bit LE, 16kHz, mono) + un message JSON de
+    contrôle `{"type": "end"}` pour signaler la fin de la dictée. Pas de
+    reprise de session après coupure réseau (hors périmètre pilote) : une
+    déconnexion met fin à la dictée côté serveur, l'audio déjà reçu est tout
+    de même archivé.
     """
     await websocket.accept()
 
@@ -188,7 +193,8 @@ async def _handle_segment(
         if operation.operation == "add":
             if operation.item is None:
                 continue
-            row = CaptureDraftItem(capture_id=capture.id, **_draft_fields_from_item(operation.item))
+            pending = await _resolve_food_item(session, operation.item)
+            row = CaptureDraftItem(capture_id=capture.id, **_draft_fields_from_pending(pending))
             session.add(row)
             await session.flush()
             await session.refresh(row)
@@ -200,7 +206,8 @@ async def _handle_segment(
             row = active_by_id.get(operation.target_item_id or "")
             if row is None or operation.item is None:
                 continue
-            _apply_modify(row, operation.item)
+            pending = await _resolve_food_item(session, operation.item)
+            _apply_modify(row, pending)
             row.updated_at = utcnow()
             session.add(row)
             await session.flush()
@@ -221,40 +228,45 @@ async def _handle_segment(
     await session.commit()
 
 
-def _draft_fields_from_item(item: ExtractedFood) -> dict[str, Any]:
+def _draft_fields_from_pending(pending: PendingFoodItem) -> dict[str, Any]:
     return {
-        "spoken_name": item.spoken_name,
-        "quantity_grams": item.quantity_grams,
-        "quantity_units": item.quantity_units,
-        "quantity_description": item.quantity_description,
-        "is_packaged_product": item.is_packaged_product,
-        "dictated_macros": (
-            item.dictated_macros.normalized_to_100g().model_dump(mode="json")
-            if item.dictated_macros
-            else None
-        ),
+        "spoken_name": pending.spoken_name,
+        "quantity_grams": pending.quantity_grams,
+        "quantity_units": pending.quantity_units,
+        "quantity_description": pending.quantity_description,
+        "is_packaged_product": pending.is_packaged_product,
+        "dictated_macros": pending.dictated_macros.model_dump(mode="json")
+        if pending.dictated_macros
+        else None,
+        "match_confidence": pending.match_confidence,
+        "candidates": [c.model_dump(mode="json") for c in pending.candidates],
     }
 
 
-def _apply_modify(row: CaptureDraftItem, item: ExtractedFood) -> None:
+def _apply_modify(row: CaptureDraftItem, pending: PendingFoodItem) -> None:
     # spoken_name/is_packaged_product sont des champs requis (non optionnels)
     # côté schéma d'extraction : le modèle les re-remplit toujours, y compris
     # pour une correction qui ne porte que sur la quantité — sans risque
     # d'écraser autre chose puisqu'il reflète sa compréhension à jour de
     # l'aliment. Les champs optionnels (quantité, macros) ne sont écrasés que
-    # s'ils sont effectivement renseignés, cf. OPERATIONS_SYSTEM_PROMPT.
-    row.spoken_name = item.spoken_name
-    row.is_packaged_product = item.is_packaged_product
-    if item.quantity_grams is not None:
-        row.quantity_grams = item.quantity_grams
+    # s'ils sont effectivement renseignés, cf. OPERATIONS_SYSTEM_PROMPT. Le
+    # matching (match_confidence/candidates) est en revanche toujours
+    # recalculé : une correction peut changer l'aliment visé (ex: "pas de la
+    # banane, de la pomme"), jamais juste ignoré.
+    row.spoken_name = pending.spoken_name
+    row.is_packaged_product = pending.is_packaged_product
+    row.match_confidence = pending.match_confidence
+    row.candidates = [c.model_dump(mode="json") for c in pending.candidates]
+    if pending.quantity_grams is not None:
+        row.quantity_grams = pending.quantity_grams
         row.quantity_units = None
-    if item.quantity_units is not None:
-        row.quantity_units = item.quantity_units
+    if pending.quantity_units is not None:
+        row.quantity_units = pending.quantity_units
         row.quantity_grams = None
-    if item.quantity_description is not None:
-        row.quantity_description = item.quantity_description
-    if item.dictated_macros is not None:
-        row.dictated_macros = item.dictated_macros.normalized_to_100g().model_dump(mode="json")
+    if pending.quantity_description is not None:
+        row.quantity_description = pending.quantity_description
+    if pending.dictated_macros is not None:
+        row.dictated_macros = pending.dictated_macros.model_dump(mode="json")
 
 
 def _serialize_draft_item(row: CaptureDraftItem) -> dict[str, Any]:
@@ -265,6 +277,8 @@ def _serialize_draft_item(row: CaptureDraftItem) -> dict[str, Any]:
         "quantity_units": row.quantity_units,
         "quantity_description": row.quantity_description,
         "is_packaged_product": row.is_packaged_product,
+        "match_confidence": row.match_confidence,
+        "candidates": row.candidates or [],
     }
 
 

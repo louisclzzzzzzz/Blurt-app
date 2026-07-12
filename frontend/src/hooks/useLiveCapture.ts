@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { getWebSocketUrl } from '../api/client'
+import type { MatchCandidate, MatchConfidence } from '../types/capture'
 
 export type LiveCaptureStatus = 'idle' | 'connecting' | 'listening' | 'stopping' | 'stopped' | 'error'
 
@@ -9,9 +10,11 @@ export interface LiveTranscriptSegment {
   end: number
 }
 
-/** Item de brouillon tel que poussé par le serveur (add/modify) — pas encore
- * de matching catalogue (Phase 7C) : candidates/match_confidence viendront
- * s'y ajouter ensuite. */
+/** Item de brouillon tel que poussé par le serveur (add/modify), matching
+ * catalogue déjà résolu (_resolve_food_item, même fonction que le flux
+ * batch) — mêmes champs que PendingFoodItem. La résolution proprement dite
+ * (choix d'une correspondance, édition manuelle...) reste à câbler en
+ * Phase 7D (réutilisation de FoodItemRow). */
 export interface LiveDraftItem {
   item_id: string
   spoken_name: string
@@ -19,6 +22,8 @@ export interface LiveDraftItem {
   quantity_units: number | null
   quantity_description: string | null
   is_packaged_product: boolean
+  match_confidence: MatchConfidence
+  candidates: MatchCandidate[]
 }
 
 interface LiveCaptureState {
