@@ -20,10 +20,12 @@
 - **Écrans Historique/Catalogue (Phase 5) vérifiés par `tsc`/`oxlint` + tests backend réels (curl), mais pas cliqués dans un vrai navigateur** — contrairement aux phases précédentes, la vérification finale en conditions réelles (navigation veille/lendemain, formulaires d'édition, confirmation de fusion) reste à faire par l'utilisateur.
 - Repo pas encore initialisé en tant que dépôt git.
 - Un fichier audio de test orphelin peut traîner dans le bucket Supabase Storage (nettoyage mineur, sans impact fonctionnel).
+- **Dictée live nutrition (Phase 7) : qualité de reconnaissance avec un vrai micro pas encore confirmée par l'utilisateur.** Le pipeline complet (AudioWorklet, WS, extraction, matching, validation) a été vérifié avec un vrai navigateur, mais via un micro simulé (injection d'un `MediaStream` généré à partir d'un fichier audio) — l'automatisation ne peut pas franchir l'invite de permission micro native. Le filtre anti-repliement ajouté au worklet (`pcm-downsampler-worklet.js`) corrige un cas de repliement spectral trouvé avec ce harnais, mais celui-ci fait subir un double rééchantillonnage à l'audio de test (jamais présent avec un vrai micro) — la qualité réelle reste à confirmer.
+- **Segmentation de la dictée live basée sur une heuristique (ponctuation + ~800ms d'inactivité), pas sur `transcription.segment`** (cf. README, Phase 7A) : ce seuil d'inactivité n'a pas été calibré à l'usage réel, contrairement aux seuils de confiance de matching qui ont au moins un historique d'ajustement (cf. Phase 6 ci-dessus).
 
 ## Rappel : hors périmètre V1 (déjà acté, à ne pas faire sans en rediscuter)
 
-- Pas de streaming temps réel.
+- Streaming temps réel : pilote fait pour la nutrition uniquement (cf. `DICTEE_LIVE_NUTRITION.md` et README, Phase 7) — musculation/activités restent sur le flux batch existant (`POST /captures`). Généraliser à d'autres domaines, ajuster les seuils/heuristiques du pilote à l'usage réel, ou ajouter la reprise de session après coupure réseau (explicitement hors périmètre du pilote) sont des décisions à rediscuter, pas à étendre soi-même.
 - Pas d'app native.
 - Pas de fonctionnalités sociales.
 - Mono-utilisateur, pas d'authentification.
