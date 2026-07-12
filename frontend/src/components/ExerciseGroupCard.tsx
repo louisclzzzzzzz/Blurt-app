@@ -1,4 +1,5 @@
 import type { EditableExerciseGroup, EditableSet } from '../types/capture'
+import { Icon } from './Icon'
 
 interface ExerciseGroupCardProps {
   group: EditableExerciseGroup
@@ -22,11 +23,11 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
   const resolutionSummary =
     group.resolution.type === 'existing' && selectedCandidate ? (
       <p className="text-sm">
-        <span className="text-neutral-500">Correspondance : </span>
+        <span className="text-ink-muted">Correspondance : </span>
         <span className="font-medium">{selectedCandidate.name}</span>
       </p>
     ) : (
-      <p className="text-sm text-neutral-500">Nouvel exercice</p>
+      <p className="text-sm text-ink-muted">Nouvel exercice</p>
     )
 
   const updateSet = (index: number, updated: EditableSet) => {
@@ -48,17 +49,17 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
           onChange={(e) =>
             updateSet(index, { ...set, [key]: e.target.value === '' ? null : Number(e.target.value) })
           }
-          className={`${width} rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5 text-sm`}
+          className={`${width} rounded-lg border border-border bg-surface-muted px-1 py-0.5 text-sm`}
         />
       </label>
     )
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <p className="font-medium">{group.spoken_exercise_name}</p>
-        <button type="button" onClick={onRemove} className="text-xs text-red-500 shrink-0">
+        <button type="button" onClick={onRemove} className="text-xs text-danger shrink-0">
           Retirer l'exercice
         </button>
       </div>
@@ -66,24 +67,21 @@ export function ExerciseGroupCard({ group, onChange, onRemove }: ExerciseGroupCa
       {resolutionSummary}
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-ink-muted">
           {group.sets.length} série{group.sets.length > 1 ? 's' : ''} (répétitions, poids et RIR facultatifs)
         </p>
         {group.sets.map((_, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-2 pl-2 border-l-2 border-neutral-200 dark:border-neutral-700"
-          >
-            <span className="text-xs text-neutral-400 w-4">{index + 1}</span>
+          <div key={index} className="flex items-center gap-2 pl-2 border-l-2 border-border">
+            <span className="text-xs text-ink-muted w-4">{index + 1}</span>
             {setField(index, 'reps', 'Reps', 'w-14')}
             {setField(index, 'weightKg', 'Kg', 'w-16')}
             {setField(index, 'rir', 'RIR', 'w-14')}
-            <button type="button" onClick={() => removeSet(index)} className="text-xs text-red-500 ml-auto">
-              ×
+            <button type="button" onClick={() => removeSet(index)} className="text-danger ml-auto p-1">
+              <Icon name="close" className="size-3.5" />
             </button>
           </div>
         ))}
-        <button type="button" onClick={addSet} className="text-xs text-left text-neutral-500 underline">
+        <button type="button" onClick={addSet} className="text-xs text-left text-accent w-fit">
           + ajouter une série
         </button>
       </div>

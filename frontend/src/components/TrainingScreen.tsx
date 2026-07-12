@@ -44,7 +44,7 @@ function SessionsScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, -1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           ← Veille
         </button>
@@ -52,18 +52,18 @@ function SessionsScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           Lendemain →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       {history && !loading && (
         <div className="flex flex-col gap-3">
-          {nothingLogged && <p className="text-sm text-neutral-500 text-center py-4">Rien loggé ce jour-là.</p>}
+          {nothingLogged && <p className="text-sm text-ink-muted text-center py-4">Rien loggé ce jour-là.</p>}
           {history.workout_sessions.map((session) => (
             <HistoryWorkoutCard key={session.id} session={session} onChanged={refetch} />
           ))}
@@ -102,7 +102,7 @@ function VolumeScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setWeekStart((w) => addDays(w, -7))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           ← Semaine préc.
         </button>
@@ -110,28 +110,28 @@ function VolumeScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setWeekStart((w) => addDays(w, 7))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           Semaine suiv. →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       {data && !loading && (
         <div className="flex flex-col gap-4">
           <div className="mobile-card">
             <div className="flex items-baseline justify-between text-sm">
               <span className="font-medium">Calories brûlées</span>
-              <span className="text-neutral-500 text-xs">{data.total_calories_kcal.toFixed(0)} kcal</span>
+              <span className="text-ink-muted text-xs tabular-nums">{data.total_calories_kcal.toFixed(0)} kcal</span>
             </div>
-            <div className="mt-2 flex items-end gap-1 h-12">
+            <div className="mt-2 flex gap-1 h-12">
               {data.daily_calories.map((d) => (
-                <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                <div key={d.date} className="flex-1 flex flex-col justify-end items-center gap-1">
                   <div
                     title={`${d.date} : ${d.calories_kcal.toFixed(0)} kcal`}
-                    className="w-full rounded bg-emerald-500 dark:bg-emerald-400"
+                    className="w-full rounded bg-data"
                     style={{ height: `${Math.max((d.calories_kcal / maxDailyCalories) * 100, d.calories_kcal > 0 ? 8 : 2)}%` }}
                   />
                 </div>
@@ -144,13 +144,10 @@ function VolumeScreen({ onBack }: { onBack: () => void }) {
               <div key={g.muscle_group} className="mobile-card">
                 <div className="flex items-baseline justify-between text-sm">
                   <span className="font-medium">{MUSCLE_GROUP_LABELS[g.muscle_group]}</span>
-                  <span className="text-neutral-500 text-xs">{g.total_sets} séries</span>
+                  <span className="text-ink-muted text-xs">{g.total_sets} séries</span>
                 </div>
-                <div className="mt-1 h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
-                  <div
-                    className="h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"
-                    style={{ width: `${(g.total_sets / maxSets) * 100}%` }}
-                  />
+                <div className="mt-1 h-2 rounded-full bg-surface-muted">
+                  <div className="h-2 rounded-full bg-data" style={{ width: `${(g.total_sets / maxSets) * 100}%` }} />
                 </div>
                 <div className="mt-2 flex gap-1">
                   {g.daily_counts.map((d) => {
@@ -159,7 +156,7 @@ function VolumeScreen({ onBack }: { onBack: () => void }) {
                       <div
                         key={d.date}
                         title={`${d.date} : ${d.sets} série${d.sets > 1 ? 's' : ''}`}
-                        className="w-4 h-4 rounded bg-emerald-500 dark:bg-emerald-400"
+                        className="w-4 h-4 rounded bg-data"
                         style={{ opacity }}
                       />
                     )
@@ -184,13 +181,13 @@ export function TrainingScreen({ onClose }: TrainingScreenProps) {
     {
       key: 'sessions',
       label: 'Séances',
-      icon: '🏋️',
+      icon: 'dumbbell',
       onClick: () => setSubScreen('sessions'),
     },
     {
       key: 'volume',
       label: 'Historique',
-      icon: '📈',
+      icon: 'chart',
       onClick: () => setSubScreen('volume'),
     },
   ]

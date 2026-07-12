@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
+import { Icon } from './Icon'
 
 interface MicButtonProps {
   onRecorded: (blob: Blob, filename: string) => void
@@ -17,17 +18,6 @@ const EXTENSION_BY_MIME: Record<string, string> = {
 function extensionFor(mimeType: string): string {
   const base = mimeType.split(';')[0]
   return EXTENSION_BY_MIME[base] ?? 'webm'
-}
-
-function MicIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
 }
 
 export function MicButton({ onRecorded, onListeningChange, disabled }: MicButtonProps) {
@@ -50,32 +40,36 @@ export function MicButton({ onRecorded, onListeningChange, disabled }: MicButton
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-4">
       <button
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className="relative flex items-center justify-center size-32 shrink-0 disabled:opacity-40 press-effect"
+        className="relative flex items-center justify-center size-36 shrink-0 disabled:opacity-40 press-effect"
         aria-label={recording ? 'Arrêter la dictée' : 'Démarrer la dictée'}
       >
-        {!recording && (
-          <span className="absolute inset-[-15%] rounded-full mic-glow bg-blue-500/15" />
+        {!recording && !disabled && (
+          <>
+            <span className="absolute inset-0 rounded-full border border-accent/30 sound-ring" />
+            <span className="absolute inset-0 rounded-full border border-accent/30 sound-ring [animation-delay:0.9s]" />
+          </>
         )}
         <span
-          className={`relative flex items-center justify-center size-full rounded-full shadow-md transition-colors ${
-            recording ? 'bg-red-600' : 'bg-blue-600'
+          className={`relative flex items-center justify-center size-24 rounded-full shadow-[0_8px_24px_-6px_rgb(0_0_0_/_0.35)] transition-colors ${
+            recording ? 'bg-danger' : 'bg-accent'
           }`}
         >
-          <MicIcon className="size-12 text-white" />
+          <Icon name="mic" className="size-10 text-white" />
         </span>
         {recording && (
-          <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 border-2 border-neutral-50 dark:border-neutral-950 animate-pulse" />
+          <span className="absolute top-2 right-6 size-3.5 rounded-full bg-danger border-2 border-bg animate-pulse" />
         )}
       </button>
       {!recording && !disabled && (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">Appuyer pour enregistrer</p>
+        <p className="text-sm text-ink-muted text-center">Appuyer pour enregistrer</p>
       )}
-      {error && <p className="text-sm text-red-500 max-w-xs text-center">{error}</p>}
+      {recording && <p className="text-sm text-danger text-center">Enregistrement en cours...</p>}
+      {error && <p className="text-sm text-danger max-w-xs text-center">{error}</p>}
     </div>
   )
 }

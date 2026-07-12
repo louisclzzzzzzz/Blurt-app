@@ -41,7 +41,7 @@ function MealsScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, -1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           ← Veille
         </button>
@@ -49,18 +49,18 @@ function MealsScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           Lendemain →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       {history && !loading && (
         <div className="flex flex-col gap-3">
-          {history.meals.length === 0 && <p className="text-sm text-neutral-500 text-center py-4">Rien loggé ce jour-là.</p>}
+          {history.meals.length === 0 && <p className="text-sm text-ink-muted text-center py-4">Rien loggé ce jour-là.</p>}
           {history.meals.map((meal) => (
             <HistoryMealCard key={meal.id} meal={meal} onChanged={refetch} />
           ))}
@@ -100,7 +100,7 @@ function SummaryScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, -1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           ← Veille
         </button>
@@ -108,14 +108,14 @@ function SummaryScreen({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full border border-border px-4 py-2 text-sm press-effect"
         >
           Lendemain →
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       {history && !loading && (
         <NutritionSummary consumptions={history.meals.flatMap((m) => m.consumptions)} goals={profile} />
@@ -132,9 +132,9 @@ export function NutritionScreen({ onClose }: NutritionScreenProps) {
   if (subScreen === 'goals') return <NutritionGoalsScreen onBack={() => setSubScreen(null)} />
 
   const buttons: DashboardButtonDef[] = [
-    { key: 'meals', label: 'Repas', icon: '🍽️', onClick: () => setSubScreen('meals') },
-    { key: 'summary', label: 'Macros', icon: '📊', onClick: () => setSubScreen('summary') },
-    { key: 'goals', label: 'Objectifs', icon: '🎯', onClick: () => setSubScreen('goals') },
+    { key: 'meals', label: 'Repas', icon: 'utensils', onClick: () => setSubScreen('meals') },
+    { key: 'summary', label: 'Macros', icon: 'chart', onClick: () => setSubScreen('summary') },
+    { key: 'goals', label: 'Objectifs', icon: 'target', onClick: () => setSubScreen('goals') },
   ]
 
   return <DashboardScreen title="Nutrition" onBack={onClose} buttons={buttons} />

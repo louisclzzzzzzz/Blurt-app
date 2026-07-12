@@ -47,13 +47,13 @@ export function NutritionGoalsScreen({ onBack }: NutritionGoalsScreenProps) {
     }
   }
 
-  if (loading) return <p className="text-sm text-neutral-500 py-8">Chargement...</p>
+  if (loading) return <p className="text-sm text-ink-muted text-center px-4 py-8">Chargement...</p>
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
       <HeaderWithBack title="Objectifs nutritionnels" onBack={onBack} />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <NutritionGoalsForm profile={profile} onChange={setProfile} />
 
@@ -61,7 +61,7 @@ export function NutritionGoalsScreen({ onBack }: NutritionGoalsScreenProps) {
         type="button"
         onClick={handleSave}
         disabled={saving}
-        className="rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
+        className="rounded-full bg-accent text-white py-3 text-sm font-medium disabled:opacity-40 press-effect"
       >
         {saving ? 'Enregistrement...' : 'Enregistrer'}
       </button>

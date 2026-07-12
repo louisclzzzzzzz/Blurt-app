@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { deleteSet, deleteWorkoutSession, updateSet } from '../api/client'
 import { groupHistorySets } from '../lib/groupHistorySets'
 import type { HistoryStrengthSetRead, HistoryWorkoutSessionRead } from '../types/history'
+import { Icon } from './Icon'
 
 interface HistoryWorkoutCardProps {
   session: HistoryWorkoutSessionRead
@@ -79,20 +80,20 @@ export function HistoryWorkoutCard({ session, onChanged }: HistoryWorkoutCardPro
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="font-medium">
-          Séance <span className="text-neutral-400 font-normal">· {timeRange}</span>
+          Séance <span className="text-ink-muted font-normal">· {timeRange}</span>
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {session.calories_kcal !== null && (
-            <p className="text-sm text-neutral-500">{session.calories_kcal.toFixed(0)} kcal</p>
+            <p className="text-sm text-ink-muted">{session.calories_kcal.toFixed(0)} kcal</p>
           )}
           <button
             type="button"
             onClick={removeSession}
             disabled={busy}
-            className="text-xs text-red-500 disabled:opacity-40"
+            className="text-xs text-danger disabled:opacity-40"
           >
             Supprimer
           </button>
@@ -105,42 +106,39 @@ export function HistoryWorkoutCard({ session, onChanged }: HistoryWorkoutCardPro
             <p className="text-sm font-medium">{group.exercise.name}</p>
             {group.sets.map((set) =>
               editingId === set.id ? (
-                <div key={set.id} className="flex items-center gap-1 pl-2 text-xs">
+                <div key={set.id} className="flex items-center gap-2 pl-2 text-xs">
                   <input
                     type="number"
                     placeholder="reps"
                     value={draft.reps}
                     onChange={(e) => setDraft({ ...draft, reps: e.target.value })}
-                    className="w-12 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5"
+                    className="w-12 rounded-lg border border-border bg-surface-muted px-1 py-0.5"
                   />
                   <input
                     type="number"
                     placeholder="kg"
                     value={draft.weightKg}
                     onChange={(e) => setDraft({ ...draft, weightKg: e.target.value })}
-                    className="w-14 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5"
+                    className="w-14 rounded-lg border border-border bg-surface-muted px-1 py-0.5"
                   />
                   <input
                     type="number"
                     placeholder="RIR"
                     value={draft.rir}
                     onChange={(e) => setDraft({ ...draft, rir: e.target.value })}
-                    className="w-12 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5"
+                    className="w-12 rounded-lg border border-border bg-surface-muted px-1 py-0.5"
                   />
-                  <button type="button" onClick={saveEdit} disabled={busy} className="underline">
-                    OK
+                  <button type="button" onClick={saveEdit} disabled={busy} className="text-accent">
+                    <Icon name="check" className="size-4" />
                   </button>
-                  <button type="button" onClick={() => setEditingId(null)} className="text-neutral-400">
-                    ×
+                  <button type="button" onClick={() => setEditingId(null)} className="text-ink-muted">
+                    <Icon name="close" className="size-4" />
                   </button>
                 </div>
               ) : (
-                <div
-                  key={set.id}
-                  className="flex items-center gap-3 text-sm text-neutral-500 pl-2 border-l-2 border-neutral-200 dark:border-neutral-700"
-                >
+                <div key={set.id} className="flex items-center gap-3 text-sm text-ink-muted pl-2 border-l-2 border-border">
                   <span className="w-4">{set.set_number}</span>
-                  <button type="button" onClick={() => startEdit(set)} className="flex items-center gap-3 underline">
+                  <button type="button" onClick={() => startEdit(set)} className="flex items-center gap-3 underline decoration-border">
                     {set.reps !== null && <span>{set.reps} reps</span>}
                     {set.weight_kg !== null && <span>{set.weight_kg} kg</span>}
                     {set.rir !== null && <span>RIR {set.rir}</span>}
@@ -150,9 +148,9 @@ export function HistoryWorkoutCard({ session, onChanged }: HistoryWorkoutCardPro
                     type="button"
                     onClick={() => removeSet(set.id)}
                     disabled={busy}
-                    className="text-red-500 disabled:opacity-40 ml-auto"
+                    className="text-danger disabled:opacity-40 ml-auto"
                   >
-                    ×
+                    <Icon name="close" className="size-3.5" />
                   </button>
                 </div>
               ),
@@ -161,7 +159,7 @@ export function HistoryWorkoutCard({ session, onChanged }: HistoryWorkoutCardPro
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   )
 }

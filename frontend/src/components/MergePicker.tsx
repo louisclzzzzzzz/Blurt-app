@@ -58,19 +58,19 @@ export function MergePicker({ domain, sourceId, sourceName, onMerged, onCancel }
     return (
       <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
         <HeaderWithBack title="Confirmer la fusion" onBack={() => setTarget(null)} />
-        <div className="mobile-card">
+        <div className="rounded-2xl border border-border bg-surface p-4">
           <p className="text-sm">
-            « <span className="font-medium">{sourceName}</span> » sera <span className="text-red-500">supprimé</span>{' '}
+            « <span className="font-medium">{sourceName}</span> » sera <span className="text-danger">supprimé</span>{' '}
             et son historique rattaché à « <span className="font-medium">{target.name}</span> ».
           </p>
-          <p className="text-xs text-neutral-500 mt-2">Cette action est irréversible.</p>
-          {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+          <p className="text-xs text-ink-muted mt-2">Cette action est irréversible.</p>
+          {error && <p className="text-sm text-danger mt-2">{error}</p>}
         </div>
         <div className="flex gap-3">
           <button
             type="button"
             onClick={() => setTarget(null)}
-            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
+            className="flex-1 rounded-full border border-border py-3 text-sm font-medium press-effect"
           >
             Retour
           </button>
@@ -78,7 +78,7 @@ export function MergePicker({ domain, sourceId, sourceName, onMerged, onCancel }
             type="button"
             onClick={confirmMerge}
             disabled={busy}
-            className="flex-1 rounded-lg bg-red-600 text-white py-3 text-sm disabled:opacity-40 press-effect"
+            className="flex-1 rounded-full bg-danger text-white py-3 text-sm font-medium disabled:opacity-40 press-effect"
           >
             {busy ? 'Fusion...' : 'Confirmer la fusion'}
           </button>
@@ -90,7 +90,7 @@ export function MergePicker({ domain, sourceId, sourceName, onMerged, onCancel }
   return (
     <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
       <HeaderWithBack title={`Fusionner "${sourceName}"`} onBack={onCancel} />
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-ink-muted">
         Choisis la fiche à conserver — « {sourceName} » sera supprimé et rattaché à celle-ci.
       </p>
 
@@ -103,18 +103,18 @@ export function MergePicker({ domain, sourceId, sourceName, onMerged, onCancel }
             if (e.key === 'Enter') runSearch()
           }}
           placeholder="Rechercher la fiche cible..."
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+          className="flex-1 rounded-full border border-border bg-surface-muted px-4 py-2 text-sm"
         />
         <button
           type="button"
           onClick={runSearch}
-          className="rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full bg-accent text-white px-4 py-2 text-sm font-medium press-effect"
         >
           Chercher
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       <div className="flex flex-col gap-2">
         {results.map((r) => (
@@ -122,7 +122,7 @@ export function MergePicker({ domain, sourceId, sourceName, onMerged, onCancel }
             key={r.id}
             type="button"
             onClick={() => setTarget(r)}
-            className="text-left text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-3 mobile-card press-effect"
+            className="text-left text-sm rounded-2xl border border-border bg-surface px-4 py-3 press-effect"
           >
             {r.name}
           </button>

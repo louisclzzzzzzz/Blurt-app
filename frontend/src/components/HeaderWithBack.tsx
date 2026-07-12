@@ -1,3 +1,5 @@
+import { Icon } from './Icon'
+
 interface HeaderWithBackProps {
   title: string
   onBack: () => void
@@ -6,15 +8,17 @@ interface HeaderWithBackProps {
 
 export function HeaderWithBack({ title, onBack, subtitle }: HeaderWithBackProps) {
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-2xl press-effect" aria-label="Retour">
-          ←
-        </button>
-        <div>
-          <h2 className="text-lg font-medium">{title}</h2>
-          {subtitle && <p className="text-xs text-neutral-500">{subtitle}</p>}
-        </div>
+    <div className="flex items-center gap-3">
+      <button
+        onClick={onBack}
+        className="flex items-center justify-center size-9 -ml-1.5 rounded-full text-ink press-effect shrink-0"
+        aria-label="Retour"
+      >
+        <Icon name="chevronLeft" className="size-5" />
+      </button>
+      <div>
+        <h2 className="font-display text-lg font-semibold tracking-tight">{title}</h2>
+        {subtitle && <p className="text-xs text-ink-muted">{subtitle}</p>}
       </div>
     </div>
   )

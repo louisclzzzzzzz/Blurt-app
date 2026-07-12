@@ -71,10 +71,10 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
       <div>
         <p className="font-medium">{item.spoken_name}</p>
         {item.quantity_description && (
-          <p className="text-xs text-neutral-500">dicté : {item.quantity_description}</p>
+          <p className="text-xs text-ink-muted">dicté : {item.quantity_description}</p>
         )}
       </div>
-      <button type="button" onClick={onRemove} className="text-xs text-red-500 shrink-0">
+      <button type="button" onClick={onRemove} className="text-xs text-danger shrink-0">
         Retirer
       </button>
     </div>
@@ -91,13 +91,13 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
             min="0"
             value={item.quantityUnits ?? ''}
             onChange={(e) => setQuantityUnits(e.target.value)}
-            className="w-16 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
+            className="w-16 rounded-lg border border-border bg-surface-muted px-2 py-1"
           />
           {selectedCandidate?.default_portion_label && (
-            <span className="text-xs text-neutral-500">× {selectedCandidate.default_portion_label}</span>
+            <span className="text-xs text-ink-muted">× {selectedCandidate.default_portion_label}</span>
           )}
         </label>
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-ink-muted">
           {item.quantityGrams !== null ? `≈ ${item.quantityGrams.toFixed(0)} g au total` : 'nombre à confirmer'}
         </p>
       </div>
@@ -108,9 +108,9 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
           type="number"
           value={item.quantityGrams ?? ''}
           onChange={(e) => setQuantity(e.target.value)}
-          className="w-24 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1"
+          className="w-24 rounded-lg border border-border bg-surface-muted px-2 py-1"
         />
-        {item.quantityGrams === null && <span className="text-xs text-amber-600">poids à confirmer</span>}
+        {item.quantityGrams === null && <span className="text-xs text-danger">poids à confirmer</span>}
       </label>
     )
 
@@ -119,10 +119,10 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
   // pour ce cas (cf. routers/captures.py::_resolve_food_item).
   if (item.dictated_macros && item.resolution.type === 'create_new') {
     return (
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
+      <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-3">
         {header}
         {quantityField}
-        <p className="text-xs text-neutral-500">Macros dictées — nouvel aliment</p>
+        <p className="text-xs text-ink-muted">Macros dictées — nouvel aliment</p>
         <NewFoodForm
           food={item.resolution.food}
           onChange={(food) => setResolution({ type: 'create_new', food })}
@@ -140,20 +140,20 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
   const resolutionSummary =
     item.resolution.type === 'existing' && selectedCandidate ? (
       <p className="text-sm">
-        <span className="text-neutral-500">Aliment reconnu : </span>
+        <span className="text-ink-muted">Aliment reconnu : </span>
         <span className="font-medium">{selectedCandidate.name}</span>
         {selectedCandidate.brand ? ` (${selectedCandidate.brand})` : ''}
       </p>
     ) : item.resolution.type === 'create_new' ? (
       <p className="text-sm">
-        <span className="text-neutral-500">Nouvel aliment : </span>
+        <span className="text-ink-muted">Nouvel aliment : </span>
         <span className="font-medium">{item.resolution.food.name || item.spoken_name}</span>
         {item.resolution.food.brand ? ` (${item.resolution.food.brand})` : ''}
       </p>
     ) : null
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-3">
       {header}
       {quantityField}
 
@@ -164,7 +164,7 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
 
       {isEditing && item.candidates.length > 0 && (
         <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-ink-muted">
             Correspondance{item.candidates.length > 1 ? 's possibles' : ''} :
           </p>
           {item.candidates.map((c) => (
@@ -183,7 +183,7 @@ export function FoodItemRow({ item, onChange, onRemove }: FoodItemRowProps) {
 
       {isEditing && item.off_candidates.length > 0 && (
         <div className="flex flex-col gap-1">
-          <p className="text-xs text-neutral-500">Trouvé sur Open Food Facts :</p>
+          <p className="text-xs text-ink-muted">Trouvé sur Open Food Facts :</p>
           {item.off_candidates.map((c) => (
             <label key={c.off_barcode ?? c.name} className="flex items-center gap-2 text-sm">
               <input

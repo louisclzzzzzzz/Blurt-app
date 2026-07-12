@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getProfile, updateProfile } from '../api/client'
 import type { UserProfile } from '../types/capture'
+import { HeaderWithBack } from './HeaderWithBack'
 import { NutritionGoalsForm } from './NutritionGoalsForm'
 
 interface ProfileSettingsProps {
@@ -50,15 +51,12 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
     }
   }
 
-  if (loading) return <p className="text-sm text-neutral-500 py-8">Chargement...</p>
+  if (loading) return <p className="text-sm text-ink-muted text-center px-4 py-8">Chargement...</p>
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
-      <div className="flex items-center gap-3">
-        <button onClick={onClose} className="text-2xl press-effect">←</button>
-        <h2 className="text-lg font-medium">Profil</h2>
-      </div>
-      <p className="text-sm text-neutral-500">
+      <HeaderWithBack title="Profil" onBack={onClose} />
+      <p className="text-sm text-ink-muted">
         Utilisé pour estimer les calories dépensées en musculation et en activité.
       </p>
 
@@ -68,7 +66,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
           <select
             value={profile.sex}
             onChange={(e) => setProfile({ ...profile, sex: e.target.value as UserProfile['sex'] })}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            className="rounded-lg border border-border bg-surface-muted px-3 py-2"
           >
             <option value="male">Homme</option>
             <option value="female">Femme</option>
@@ -81,7 +79,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
             type="date"
             value={profile.birth_date}
             onChange={(e) => setProfile({ ...profile, birth_date: e.target.value })}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            className="rounded-lg border border-border bg-surface-muted px-3 py-2"
           />
         </label>
 
@@ -91,7 +89,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
             type="number"
             value={profile.height_cm || ''}
             onChange={(e) => setProfile({ ...profile, height_cm: Number(e.target.value) })}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            className="rounded-lg border border-border bg-surface-muted px-3 py-2"
           />
         </label>
 
@@ -101,15 +99,15 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
             type="number"
             value={profile.weight_kg || ''}
             onChange={(e) => setProfile({ ...profile, weight_kg: Number(e.target.value) })}
-            className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+            className="rounded-lg border border-border bg-surface-muted px-3 py-2"
           />
         </label>
       </div>
 
-      <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4 flex flex-col gap-3">
+      <div className="border-t border-border pt-4 flex flex-col gap-3">
         <div>
           <h3 className="text-sm font-medium">Objectifs nutritionnels</h3>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-ink-muted">
             Facultatif — utilisés pour le récap dans Nutrition. Aussi modifiables depuis le
             tableau de bord Nutrition.
           </p>
@@ -118,13 +116,13 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
         <NutritionGoalsForm profile={profile} onChange={setProfile} />
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-3 mt-4">
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
+          className="flex-1 rounded-full border border-border py-3 text-sm font-medium press-effect"
         >
           Fermer
         </button>
@@ -132,7 +130,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
           type="button"
           onClick={handleSave}
           disabled={!canSave || saving}
-          className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
+          className="flex-1 rounded-full bg-accent text-white py-3 text-sm font-medium disabled:opacity-40 press-effect"
         >
           {saving ? 'Enregistrement...' : 'Enregistrer'}
         </button>
