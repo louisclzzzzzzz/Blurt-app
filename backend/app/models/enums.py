@@ -24,6 +24,13 @@ class CaptureStatus(StrEnum):
     DISCARDED = "discarded"
 
 
+class DraftItemStatus(StrEnum):
+    """Statut d'un item de brouillon (capture_draft_items) pendant une dictée live."""
+
+    ACTIVE = "active"
+    REMOVED = "removed"
+
+
 class MatchMethod(StrEnum):
     EXACT_ALIAS = "exact_alias"
     FUZZY = "fuzzy"

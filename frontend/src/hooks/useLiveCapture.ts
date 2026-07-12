@@ -9,12 +9,25 @@ export interface LiveTranscriptSegment {
   end: number
 }
 
+/** Item de brouillon tel que poussé par le serveur (add/modify) — pas encore
+ * de matching catalogue (Phase 7C) : candidates/match_confidence viendront
+ * s'y ajouter ensuite. */
+export interface LiveDraftItem {
+  item_id: string
+  spoken_name: string
+  quantity_grams: number | null
+  quantity_units: number | null
+  quantity_description: string | null
+  is_packaged_product: boolean
+}
+
 interface LiveCaptureState {
   status: LiveCaptureStatus
   captureId: string | null
   partialText: string
   segments: LiveTranscriptSegment[]
   finalText: string | null
+  draftItems: LiveDraftItem[]
   error: string | null
 }
 
@@ -27,6 +40,7 @@ const INITIAL_STATE: LiveCaptureState = {
   partialText: '',
   segments: [],
   finalText: null,
+  draftItems: [],
   error: null,
 }
 
@@ -107,6 +121,20 @@ export function useLiveCapture() {
               }
             case 'transcript_done':
               return { ...s, finalText: message.text, partialText: '' }
+            case 'draft_item_added':
+              return { ...s, draftItems: [...s.draftItems, message.item] }
+            case 'draft_item_updated':
+              return {
+                ...s,
+                draftItems: s.draftItems.map((item) =>
+                  item.item_id === message.item.item_id ? message.item : item,
+                ),
+              }
+            case 'draft_item_removed':
+              return {
+                ...s,
+                draftItems: s.draftItems.filter((item) => item.item_id !== message.item_id),
+              }
             case 'stream_ended':
               return { ...s, status: 'stopped' }
             case 'error':
