@@ -123,3 +123,36 @@ class VoiceCaptureExtraction(BaseModel):
     """
 
     items: list[ExtractedItem]
+
+
+class DraftItemContext(BaseModel):
+    """Vue allégée d'un item de brouillon déjà actif, donnée en contexte au
+    modèle pour qu'il distingue un ajout d'une correction — cf.
+    DICTEE_LIVE_NUTRITION.md, pilote dictée live nutrition."""
+
+    item_id: str
+    spoken_name: str
+    quantity_grams: Optional[float] = None
+    quantity_units: Optional[float] = None
+    quantity_description: Optional[str] = None
+
+
+class DraftOperation(BaseModel):
+    operation: Literal["add", "modify", "remove"]
+    target_item_id: Optional[str] = Field(
+        default=None, description="Requis pour modify/remove : item_id du brouillon concerné."
+    )
+    item: Optional[ExtractedFood] = Field(
+        default=None,
+        description=(
+            "Requis pour add/modify. Pour add : aliment complet. Pour modify : uniquement les "
+            "champs qui changent réellement — laisse les autres à leur valeur par défaut/vide."
+        ),
+    )
+
+
+class DraftOperations(BaseModel):
+    """Diff incrémental produit par extract_operations à partir d'un seul
+    segment de transcription et de l'état courant du brouillon."""
+
+    operations: list[DraftOperation]

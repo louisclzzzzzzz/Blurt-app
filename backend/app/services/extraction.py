@@ -1,5 +1,7 @@
+import json
+
 from app.config import get_settings
-from app.schemas.extraction import VoiceCaptureExtraction
+from app.schemas.extraction import DraftItemContext, DraftOperations, VoiceCaptureExtraction
 from app.services.mistral_client import get_mistral_client
 
 SYSTEM_PROMPT = """Tu extrais les informations structurées d'une dictée vocale d'un utilisateur qui fait le suivi de son alimentation, ses activités physiques et sa musculation.
@@ -31,6 +33,50 @@ async def extract_from_transcript(transcript: str) -> VoiceCaptureExtraction:
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": transcript},
+        ],
+    )
+    parsed = response.choices[0].message.parsed
+    assert parsed is not None
+    return parsed
+
+
+# Prompt dédié à la dictée live nutrition (pilote, cf. DICTEE_LIVE_NUTRITION.md) :
+# tâche de diff par rapport à un brouillon existant, pas une extraction en un
+# seul bloc — ne réutilise pas SYSTEM_PROMPT, qui suppose l'inverse.
+OPERATIONS_SYSTEM_PROMPT = """Tu mets à jour un brouillon de repas en cours de dictée, à partir d'un nouveau segment de transcription vocale. Domaine nutrition uniquement.
+
+Le brouillon (fourni en JSON) contient les aliments déjà identifiés dans les segments précédents de la MÊME dictée, chacun avec un item_id. Pour le nouveau segment, produis une liste d'opérations :
+
+- "add" : un nouvel aliment mentionné pour la première fois. Un item par aliment, pas de target_item_id.
+- "modify" : une correction en langage libre d'un aliment déjà dans le brouillon (ex: "en fait c'était 150 grammes", "pas de la banane, de la pomme"). target_item_id = item_id de l'aliment concerné dans le brouillon fourni. Dans "item", ne renseigne que les champs qui changent réellement (les autres restent vides/null) — ne redonne pas l'intégralité de l'aliment.
+- "remove" : l'utilisateur retire un aliment déjà dans le brouillon (ex: "en fait laisse tomber le yaourt"). target_item_id renseigné, pas d'item.
+
+Une correction porte presque toujours sur le DERNIER aliment ajouté, sauf si l'utilisateur précise explicitement un autre aliment du brouillon. N'interprète un segment comme "modify"/"remove" que s'il contient un signal de correction explicite (ex: "en fait", "non plutôt", "pas X mais Y", "laisse tomber", "annule"...) — sinon c'est toujours un "add", même si l'aliment ressemble à un item déjà présent.
+
+Mêmes règles d'extraction que d'habitude pour les champs d'un aliment (poids/quantité en grammes ou en unités, produit emballé, macros dictées).
+
+Si le segment ne contient aucune information nutritionnelle exploitable (bruit, hésitation, hors sujet), retourne une liste d'opérations vide."""
+
+
+async def extract_operations(
+    segment_text: str, current_items: list[DraftItemContext]
+) -> DraftOperations:
+    """Diff incrémental pour la dictée live nutrition : détermine si un
+    segment de transcription ajoute, corrige ou retire un item du brouillon
+    courant — cf. DICTEE_LIVE_NUTRITION.md (Phase 7B)."""
+    settings = get_settings()
+    draft_state = json.dumps(
+        [item.model_dump() for item in current_items], ensure_ascii=False
+    )
+    response = await get_mistral_client().chat.parse_async(
+        model=settings.mistral_extraction_model,
+        response_format=DraftOperations,
+        messages=[
+            {"role": "system", "content": OPERATIONS_SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": f"Brouillon actuel :\n{draft_state}\n\nNouveau segment dicté :\n{segment_text}",
+            },
         ],
     )
     parsed = response.choices[0].message.parsed

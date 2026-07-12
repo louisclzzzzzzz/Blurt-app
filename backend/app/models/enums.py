@@ -16,11 +16,19 @@ class MealType(StrEnum):
 
 class CaptureStatus(StrEnum):
     UPLOADED = "uploaded"
+    STREAMING = "streaming"
     TRANSCRIBING = "transcribing"
     EXTRACTING = "extracting"
     PENDING_VALIDATION = "pending_validation"
     VALIDATED = "validated"
     DISCARDED = "discarded"
+
+
+class DraftItemStatus(StrEnum):
+    """Statut d'un item de brouillon (capture_draft_items) pendant une dictée live."""
+
+    ACTIVE = "active"
+    REMOVED = "removed"
 
 
 class MatchMethod(StrEnum):

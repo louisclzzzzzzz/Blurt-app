@@ -10,6 +10,7 @@ from app.db.session import engine, get_session
 from app.routers import (
     activities,
     activity_logs,
+    capture_stream,
     captures,
     exercises,
     foods,
@@ -48,6 +49,7 @@ async def health(session: AsyncSession = Depends(get_session)) -> dict:
 
 app.include_router(foods.router)
 app.include_router(captures.router)
+app.include_router(capture_stream.router)
 app.include_router(validation.router)
 app.include_router(profile.router)
 app.include_router(history.router)
