@@ -82,19 +82,19 @@ export function CatalogueDomainScreen({ domain, title, onBack }: CatalogueDomain
             if (e.key === 'Enter') runSearch(query)
           }}
           placeholder="Rechercher..."
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+          className="flex-1 rounded-full border border-border bg-surface-muted px-4 py-2 text-sm"
         />
         <button
           type="button"
           onClick={() => runSearch(query)}
-          className="rounded-lg bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm press-effect"
+          className="rounded-full bg-accent text-white px-4 py-2 text-sm font-medium press-effect"
         >
           Chercher
         </button>
       </div>
 
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Recherche...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Recherche...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       <div className="flex flex-col gap-2">
         {results.map((r) => (
@@ -102,12 +102,12 @@ export function CatalogueDomainScreen({ domain, title, onBack }: CatalogueDomain
             key={r.id}
             type="button"
             onClick={() => setSelectedId(r.id)}
-            className="text-left text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-3 mobile-card press-effect"
+            className="text-left text-sm rounded-2xl border border-border bg-surface px-4 py-3 press-effect"
           >
             {r.name}
           </button>
         ))}
-        {!loading && results.length === 0 && <p className="text-sm text-neutral-500 text-center py-4">Aucun résultat.</p>}
+        {!loading && results.length === 0 && <p className="text-sm text-ink-muted text-center py-4">Aucun résultat.</p>}
       </div>
     </div>
   )

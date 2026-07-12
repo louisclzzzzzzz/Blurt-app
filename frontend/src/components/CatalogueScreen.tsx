@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CatalogueDomainScreen } from './CatalogueDomainScreen'
 import type { DashboardButtonDef } from './DashboardScreen'
 import { DashboardScreen } from './DashboardScreen'
+import type { IconName } from './Icon'
 
 export type CatalogueDomain = 'food' | 'exercise' | 'activity'
 
@@ -15,10 +16,10 @@ const DOMAIN_LABELS: Record<CatalogueDomain, string> = {
   activity: 'Activités',
 }
 
-const DOMAIN_ICONS: Record<CatalogueDomain, string> = {
-  food: '🍎',
-  exercise: '🏋️',
-  activity: '🏃',
+const DOMAIN_ICONS: Record<CatalogueDomain, IconName> = {
+  food: 'utensils',
+  exercise: 'dumbbell',
+  activity: 'activity',
 }
 
 export function CatalogueScreen({ onClose }: CatalogueScreenProps) {

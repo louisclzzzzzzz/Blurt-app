@@ -28,7 +28,7 @@ export function NewFoodForm({ food, onChange }: NewFoodFormProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+    <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-surface-muted">
       {FIELDS.map(({ key, label, required }) => (
         <label key={key} className="text-xs flex flex-col gap-1 col-span-1">
           {label}
@@ -37,7 +37,7 @@ export function NewFoodForm({ food, onChange }: NewFoodFormProps) {
             type={key === 'name' || key === 'brand' ? 'text' : 'number'}
             value={(food[key] as string | number | null | undefined) ?? ''}
             onChange={(e) => update(key, e.target.value)}
-            className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
+            className="rounded-lg border border-border bg-surface px-2 py-1 text-sm"
           />
         </label>
       ))}

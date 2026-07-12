@@ -127,9 +127,9 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md px-4">
-      <p className="text-sm text-neutral-500 italic">« {capture.transcript} »</p>
+      <p className="text-sm text-ink-muted italic">« {capture.transcript} »</p>
 
-      {nothingDetected && <p className="text-sm text-neutral-500">Rien détecté.</p>}
+      {nothingDetected && <p className="text-sm text-ink-muted">Rien détecté.</p>}
 
       {foodItems.map((item, index) =>
         item.removed ? null : (
@@ -164,13 +164,13 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
         ),
       )}
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-3 mt-4">
         <button
           type="button"
           onClick={handleCancel}
-          className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
+          className="flex-1 rounded-full border border-border py-3 text-sm font-medium press-effect"
         >
           Annuler
         </button>
@@ -178,7 +178,7 @@ export function ValidationScreen({ capture, onDone, onCancel }: ValidationScreen
           type="button"
           onClick={handleSubmit}
           disabled={!canSubmit || submitting}
-          className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
+          className="flex-1 rounded-full bg-accent text-white py-3 text-sm font-medium disabled:opacity-40 press-effect"
         >
           {submitting ? 'Enregistrement...' : 'Confirmer'}
         </button>

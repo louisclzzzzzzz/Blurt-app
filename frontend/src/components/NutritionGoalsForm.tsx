@@ -18,7 +18,7 @@ export function NutritionGoalsForm({ profile, onChange }: NutritionGoalsFormProp
           type="number"
           value={profile.calorie_goal_kcal ?? ''}
           onChange={(e) => onChange({ ...profile, calorie_goal_kcal: numOrNull(e.target.value) })}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          className="rounded-lg border border-border bg-surface-muted px-3 py-2"
         />
       </label>
 
@@ -28,7 +28,7 @@ export function NutritionGoalsForm({ profile, onChange }: NutritionGoalsFormProp
           type="number"
           value={profile.protein_goal_g ?? ''}
           onChange={(e) => onChange({ ...profile, protein_goal_g: numOrNull(e.target.value) })}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          className="rounded-lg border border-border bg-surface-muted px-3 py-2"
         />
       </label>
 
@@ -38,7 +38,7 @@ export function NutritionGoalsForm({ profile, onChange }: NutritionGoalsFormProp
           type="number"
           value={profile.carbs_goal_g ?? ''}
           onChange={(e) => onChange({ ...profile, carbs_goal_g: numOrNull(e.target.value) })}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          className="rounded-lg border border-border bg-surface-muted px-3 py-2"
         />
       </label>
 
@@ -48,7 +48,7 @@ export function NutritionGoalsForm({ profile, onChange }: NutritionGoalsFormProp
           type="number"
           value={profile.fat_goal_g ?? ''}
           onChange={(e) => onChange({ ...profile, fat_goal_g: numOrNull(e.target.value) })}
-          className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+          className="rounded-lg border border-border bg-surface-muted px-3 py-2"
         />
       </label>
     </div>

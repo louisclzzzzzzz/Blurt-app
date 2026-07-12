@@ -14,6 +14,7 @@ import type { ActivityTypeDetailRead, ExerciseDetailRead, FoodDetailRead, Muscle
 import { MUSCLE_GROUPS, MUSCLE_GROUP_LABELS } from '../types/catalogue'
 import type { CatalogueDomain } from './CatalogueScreen'
 import { HeaderWithBack } from './HeaderWithBack'
+import { Icon } from './Icon'
 import { MergePicker } from './MergePicker'
 
 interface CatalogueEntryDetailProps {
@@ -218,22 +219,22 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md px-4 py-4">
-      {loading && <p className="text-sm text-neutral-500 animate-pulse text-center py-4">Chargement...</p>}
-      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-sm text-ink-muted animate-pulse text-center py-4">Chargement...</p>}
+      {error && <p className="text-sm text-danger text-center">{error}</p>}
 
       {detail && !loading && !editing && (
         <div className="flex flex-col gap-4">
           <HeaderWithBack title={detail.name} onBack={onBack} />
 
           <div className="flex justify-end">
-            <button type="button" onClick={startEdit} className="text-sm underline text-blue-600 dark:text-blue-400 press-effect">
+            <button type="button" onClick={startEdit} className="text-sm underline text-accent press-effect">
               Modifier
             </button>
           </div>
 
           {food && (
             <div className="mobile-card">
-              <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm text-ink-muted">
                 {food.brand && `${food.brand} · `}
                 {food.energy_kcal.toFixed(0)} kcal · {food.protein_g.toFixed(1)}g prot. ·{' '}
                 {food.carbs_g.toFixed(1)}g gluc. · {food.fat_g.toFixed(1)}g lip. (pour 100g)
@@ -244,17 +245,14 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
           )}
           {exercise && (
             <div className="mobile-card">
-              <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm text-ink-muted">
                 {exercise.equipment && `${exercise.equipment} · `}
                 {exercise.met_value !== null ? `MET ${exercise.met_value}` : 'MET inconnu'}
               </p>
               {exercise.target_muscles.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {exercise.target_muscles.map((m) => (
-                    <span
-                      key={m}
-                      className="rounded-full border border-neutral-300 dark:border-neutral-600 px-2 py-1 text-xs bg-neutral-100 dark:bg-neutral-800"
-                    >
+                    <span key={m} className="rounded-full border border-border px-2 py-1 text-xs bg-surface-muted">
                       {MUSCLE_GROUP_LABELS[m]}
                     </span>
                   ))}
@@ -264,7 +262,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
           )}
           {activity && (
             <div className="mobile-card">
-              <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm text-ink-muted">
                 {activity.met_value !== null ? `MET ${activity.met_value}` : 'MET inconnu'}
               </p>
             </div>
@@ -272,20 +270,20 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
 
           <div className="mobile-card">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-neutral-500">Alias appris :</p>
+              <p className="text-xs text-ink-muted">Alias appris :</p>
             </div>
-            {detail.aliases.length === 0 && <p className="text-xs text-neutral-400">Aucun.</p>}
+            {detail.aliases.length === 0 && <p className="text-xs text-ink-muted">Aucun.</p>}
             <div className="flex flex-col gap-2 mt-2">
               {detail.aliases.map((a) => (
                 <div key={a.id} className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-700 dark:text-neutral-200">{a.alias_text}</span>
+                  <span>{a.alias_text}</span>
                   <button
                     type="button"
                     onClick={() => removeAlias(a.id)}
                     disabled={busy}
-                    className="text-red-500 disabled:opacity-40 press-effect"
+                    className="text-danger disabled:opacity-40 press-effect"
                   >
-                    ×
+                    <Icon name="close" className="size-3.5" />
                   </button>
                 </div>
               ))}
@@ -295,7 +293,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
           <button
             type="button"
             onClick={() => setShowMerge(true)}
-            className="text-sm text-left underline text-neutral-500 w-fit press-effect"
+            className="text-sm text-left underline text-ink-muted w-fit press-effect"
           >
             Fusionner...
           </button>
@@ -312,7 +310,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
               type="text"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2"
+              className="rounded-lg border border-border bg-surface-muted px-3 py-2"
             />
           </label>
 
@@ -325,7 +323,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                     type={isNumber ? 'number' : 'text'}
                     value={draft[key]}
                     onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-                    className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+                    className="rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm"
                   />
                 </label>
               ))}
@@ -340,7 +338,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                   type="text"
                   value={draft.equipment}
                   onChange={(e) => setDraft({ ...draft, equipment: e.target.value })}
-                  className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+                  className="rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm"
                 />
               </label>
               <div className="flex flex-col gap-2">
@@ -372,7 +370,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                   type="number"
                   value={draft.met_value}
                   onChange={(e) => setDraft({ ...draft, met_value: e.target.value })}
-                  className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+                  className="rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm"
                 />
               </label>
             </div>
@@ -385,7 +383,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
                 type="number"
                 value={draft.met_value}
                 onChange={(e) => setDraft({ ...draft, met_value: e.target.value })}
-                className="rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+                className="rounded-lg border border-border bg-surface-muted px-3 py-2 text-sm"
               />
             </label>
           )}
@@ -394,7 +392,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-600 py-3 text-sm press-effect"
+              className="flex-1 rounded-full border border-border py-3 text-sm font-medium press-effect"
             >
               Annuler
             </button>
@@ -402,7 +400,7 @@ export function CatalogueEntryDetail({ domain, entryId, onBack }: CatalogueEntry
               type="button"
               onClick={saveEdit}
               disabled={busy}
-              className="flex-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white py-3 text-sm disabled:opacity-40 press-effect"
+              className="flex-1 rounded-full bg-accent text-white py-3 text-sm font-medium disabled:opacity-40 press-effect"
             >
               {busy ? 'Enregistrement...' : 'Enregistrer'}
             </button>

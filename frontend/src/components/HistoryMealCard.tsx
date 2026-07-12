@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { deleteConsumption, deleteMeal, updateConsumption } from '../api/client'
 import type { HistoryFoodConsumptionRead, HistoryMealEntryRead } from '../types/history'
+import { Icon } from './Icon'
 
 interface HistoryMealCardProps {
   meal: HistoryMealEntryRead
@@ -76,19 +77,19 @@ export function HistoryMealCard({ meal, onChanged }: HistoryMealCardProps) {
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="font-medium">
           {meal.meal_type ? MEAL_TYPE_LABELS[meal.meal_type] : 'Repas'}
-          <span className="text-neutral-400 font-normal"> · {formatTime(meal.logged_at)}</span>
+          <span className="text-ink-muted font-normal"> · {formatTime(meal.logged_at)}</span>
         </p>
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-neutral-500">{totalKcal.toFixed(0)} kcal</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-ink-muted">{totalKcal.toFixed(0)} kcal</p>
           <button
             type="button"
             onClick={removeMeal}
             disabled={busy}
-            className="text-xs text-red-500 disabled:opacity-40"
+            className="text-xs text-danger disabled:opacity-40"
           >
             Supprimer
           </button>
@@ -103,36 +104,32 @@ export function HistoryMealCard({ meal, onChanged }: HistoryMealCardProps) {
               {c.food_item.brand ? ` (${c.food_item.brand})` : ''}
             </span>
             {editingId === c.id ? (
-              <span className="flex items-center gap-1 shrink-0">
+              <span className="flex items-center gap-2 shrink-0">
                 <input
                   type="number"
                   value={draftGrams}
                   onChange={(e) => setDraftGrams(e.target.value)}
-                  className="w-16 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5 text-sm"
+                  className="w-16 rounded-lg border border-border bg-surface-muted px-1 py-0.5 text-sm"
                 />
-                <button type="button" onClick={saveEdit} disabled={busy} className="text-xs underline">
-                  OK
+                <button type="button" onClick={saveEdit} disabled={busy} className="text-accent">
+                  <Icon name="check" className="size-4" />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingId(null)}
-                  className="text-xs text-neutral-400"
-                >
-                  ×
+                <button type="button" onClick={() => setEditingId(null)} className="text-ink-muted">
+                  <Icon name="close" className="size-4" />
                 </button>
               </span>
             ) : (
-              <span className="text-neutral-500 shrink-0 pl-2 flex items-center gap-2">
-                <button type="button" onClick={() => startEdit(c)} className="underline">
+              <span className="text-ink-muted shrink-0 pl-2 flex items-center gap-3">
+                <button type="button" onClick={() => startEdit(c)} className="underline decoration-border">
                   {c.quantity_grams.toFixed(0)} g · {c.energy_kcal.toFixed(0)} kcal
                 </button>
                 <button
                   type="button"
                   onClick={() => removeConsumption(c.id)}
                   disabled={busy}
-                  className="text-red-500 disabled:opacity-40"
+                  className="text-danger disabled:opacity-40"
                 >
-                  ×
+                  <Icon name="close" className="size-3.5" />
                 </button>
               </span>
             )}
@@ -140,7 +137,7 @@ export function HistoryMealCard({ meal, onChanged }: HistoryMealCardProps) {
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   )
 }

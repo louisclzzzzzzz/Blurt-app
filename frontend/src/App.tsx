@@ -81,39 +81,23 @@ function App() {
         return <CatalogueScreen onClose={() => setScreen('capture')} />
       default:
         return (
-          <div className="flex flex-col min-h-full w-full max-w-md mx-auto px-4 py-6">
-            <div className="flex flex-col items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">Blurt</h1>
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
-                <span
-                  className={`inline-block size-2 rounded-full ${
-                    backendStatus === 'ok'
-                      ? 'bg-green-500'
-                      : backendStatus === 'error'
-                        ? 'bg-red-500'
-                        : 'bg-neutral-400 animate-pulse'
-                  }`}
-                />
-                {backendStatus === 'checking' && 'Connexion...'}
-                {backendStatus === 'ok' && 'Connecté'}
-                {backendStatus === 'error' && 'Hors ligne'}
-              </div>
-            </div>
+          <div className="flex flex-col min-h-full w-full max-w-md mx-auto px-4 py-8">
+            <h1 className="font-display text-2xl font-semibold tracking-tight text-center">Blurt</h1>
 
             <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
               {flow === 'idle' && <MicButton onRecorded={handleRecorded} />}
 
               {flow === 'uploading' && (
-                <p className="text-sm text-neutral-500 animate-pulse">Analyse en cours...</p>
+                <p className="text-sm text-ink-muted animate-pulse">Analyse en cours...</p>
               )}
 
               {flow === 'error' && (
                 <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm text-red-500 max-w-xs text-center">{errorMessage}</p>
+                  <p className="text-sm text-danger max-w-xs text-center">{errorMessage}</p>
                   <button
                     type="button"
                     onClick={reset}
-                    className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-6 py-2 text-sm press-effect"
+                    className="rounded-full border border-border px-6 py-2.5 text-sm font-medium press-effect"
                   >
                     Réessayer
                   </button>
@@ -121,7 +105,7 @@ function App() {
               )}
 
               {flow === 'validating' && capture && (
-                <div className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3 max-h-[70vh] overflow-y-auto mobile-scrollbar">
+                <div className="w-full rounded-2xl border border-border bg-surface p-3 max-h-[70vh] overflow-y-auto mobile-scrollbar">
                   <ValidationScreen
                     capture={capture}
                     onDone={(response) => {
@@ -135,14 +119,19 @@ function App() {
 
               {flow === 'done' && (
                 <div className="flex flex-col items-center gap-3">
-                  <p className="text-sm font-medium">Enregistré.</p>
+                  <span className="flex items-center justify-center size-11 rounded-full bg-accent-soft text-accent">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-5">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <p className="text-sm font-medium">Enregistré</p>
                   {totalCalories > 0 && (
-                    <p className="text-sm text-neutral-500">≈ {totalCalories.toFixed(0)} kcal</p>
+                    <p className="text-sm text-ink-muted">≈ {totalCalories.toFixed(0)} kcal</p>
                   )}
                   <button
                     type="button"
                     onClick={reset}
-                    className="rounded-lg bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 text-sm press-effect"
+                    className="rounded-full bg-accent text-white px-6 py-2.5 text-sm font-medium press-effect"
                   >
                     Nouvelle dictée
                   </button>
@@ -159,9 +148,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-svh flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 safe-area-inset-top">
+    <div className="min-h-svh flex flex-col bg-bg text-ink safe-area-inset-top">
       <MobileNav current={screen} onNavigate={setScreen} />
-      <main className="flex-1 overflow-y-auto mobile-scrollbar">
+      <main className="flex-1 overflow-y-auto mobile-scrollbar pb-24">
         {renderScreenContent()}
       </main>
     </div>

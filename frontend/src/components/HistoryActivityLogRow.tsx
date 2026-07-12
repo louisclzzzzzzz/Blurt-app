@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { deleteActivityLog, updateActivityLog } from '../api/client'
 import type { HistoryActivityLogRead } from '../types/history'
+import { Icon } from './Icon'
 
 interface HistoryActivityLogRowProps {
   log: HistoryActivityLogRead
@@ -57,21 +58,21 @@ export function HistoryActivityLogRow({ log, onChanged }: HistoryActivityLogRowP
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-2">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <p className="font-medium">
           {log.activity_type.name}
-          <span className="text-neutral-400 font-normal"> · {formatTime(log.logged_at)}</span>
+          <span className="text-ink-muted font-normal"> · {formatTime(log.logged_at)}</span>
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {!editing && log.calories_kcal !== null && (
-            <p className="text-sm text-neutral-500">{log.calories_kcal.toFixed(0)} kcal</p>
+            <p className="text-sm text-ink-muted">{log.calories_kcal.toFixed(0)} kcal</p>
           )}
           <button
             type="button"
             onClick={remove}
             disabled={busy}
-            className="text-xs text-red-500 disabled:opacity-40"
+            className="text-xs text-danger disabled:opacity-40"
           >
             Supprimer
           </button>
@@ -86,7 +87,7 @@ export function HistoryActivityLogRow({ log, onChanged }: HistoryActivityLogRowP
               type="number"
               value={draft.duration}
               onChange={(e) => setDraft({ ...draft, duration: e.target.value })}
-              className="w-16 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5"
+              className="w-16 rounded-lg border border-border bg-surface-muted px-1 py-0.5"
             />
           </label>
           <label className="flex items-center gap-1">
@@ -95,18 +96,18 @@ export function HistoryActivityLogRow({ log, onChanged }: HistoryActivityLogRowP
               type="number"
               value={draft.distance}
               onChange={(e) => setDraft({ ...draft, distance: e.target.value })}
-              className="w-16 rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-1 py-0.5"
+              className="w-16 rounded-lg border border-border bg-surface-muted px-1 py-0.5"
             />
           </label>
-          <button type="button" onClick={saveEdit} disabled={busy} className="text-xs underline">
-            OK
+          <button type="button" onClick={saveEdit} disabled={busy} className="text-accent">
+            <Icon name="check" className="size-4" />
           </button>
-          <button type="button" onClick={() => setEditing(false)} className="text-xs text-neutral-400">
-            ×
+          <button type="button" onClick={() => setEditing(false)} className="text-ink-muted">
+            <Icon name="close" className="size-4" />
           </button>
         </div>
       ) : (
-        <button type="button" onClick={startEdit} className="text-sm text-neutral-500 text-left underline w-fit">
+        <button type="button" onClick={startEdit} className="text-sm text-ink-muted text-left underline decoration-border w-fit">
           {[
             log.duration_minutes !== null ? `${log.duration_minutes} min` : null,
             log.distance_km !== null ? `${log.distance_km} km` : null,
@@ -116,7 +117,7 @@ export function HistoryActivityLogRow({ log, onChanged }: HistoryActivityLogRowP
         </button>
       )}
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   )
 }

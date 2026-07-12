@@ -42,14 +42,7 @@ function CalorieRing({ total, goal }: { total: number; goal: number | null }) {
   return (
     <div className="relative w-32 h-32 shrink-0">
       <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-        <circle
-          cx="50"
-          cy="50"
-          r={RADIUS}
-          fill="none"
-          strokeWidth="8"
-          className="stroke-neutral-200 dark:stroke-neutral-700"
-        />
+        <circle cx="50" cy="50" r={RADIUS} fill="none" strokeWidth="8" className="stroke-border" />
         {pct !== null && (
           <circle
             cx="50"
@@ -60,13 +53,13 @@ function CalorieRing({ total, goal }: { total: number; goal: number | null }) {
             strokeLinecap="round"
             strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={dashOffset}
-            className={overGoal ? 'stroke-amber-500' : 'stroke-emerald-500 dark:stroke-emerald-400'}
+            className={overGoal ? 'stroke-danger' : 'stroke-accent'}
           />
         )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-medium">{total.toFixed(0)}</span>
-        <span className="text-xs text-neutral-500">{goal !== null ? `/ ${goal.toFixed(0)} kcal` : 'kcal'}</span>
+        <span className="font-display text-xl font-semibold tabular-nums">{total.toFixed(0)}</span>
+        <span className="text-xs text-ink-muted">{goal !== null ? `/ ${goal.toFixed(0)} kcal` : 'kcal'}</span>
       </div>
     </div>
   )
@@ -78,16 +71,13 @@ function MacroBar({ label, value, goal }: { label: string; value: number; goal: 
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between text-xs">
         <span>{label}</span>
-        <span className="text-neutral-500">
+        <span className="text-ink-muted tabular-nums">
           {value.toFixed(0)}g{goal !== null ? ` / ${goal.toFixed(0)}g` : ''}
         </span>
       </div>
       {pct !== null && (
-        <div className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
-          <div
-            className="h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"
-            style={{ width: `${pct}%` }}
-          />
+        <div className="h-2 rounded-full bg-surface-muted">
+          <div className="h-2 rounded-full bg-accent" style={{ width: `${pct}%` }} />
         </div>
       )}
     </div>
@@ -100,7 +90,7 @@ export function NutritionSummary({ consumptions, goals }: NutritionSummaryProps)
   const totals = sumTotals(consumptions)
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 flex items-center gap-4">
+    <div className="rounded-2xl border border-border bg-surface p-4 flex items-center gap-4">
       <CalorieRing total={totals.energy_kcal} goal={goals?.calorie_goal_kcal ?? null} />
       <div className="flex-1 flex flex-col gap-2">
         <MacroBar label="Protéines" value={totals.protein_g} goal={goals?.protein_goal_g ?? null} />
