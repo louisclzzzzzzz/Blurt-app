@@ -115,7 +115,21 @@ async def stream_capture(websocket: WebSocket, session: AsyncSession = Depends(g
 
     try:
         while True:
-            message = await websocket.receive()
+            receive_task = asyncio.create_task(websocket.receive())
+            done, _pending = await asyncio.wait(
+                {receive_task, forward_task}, return_when=asyncio.FIRST_COMPLETED
+            )
+            if forward_task in done:
+                # Le pipeline de transcription s'est arrêté avant que le
+                # client ne signale la fin de la dictée (connexion Mistral
+                # perdue, erreur SDK...) : plus personne ne consomme
+                # audio_queue, inutile de continuer à attendre des frames du
+                # client. On finalise la session avec ce qui a déjà été
+                # capturé plutôt que de rester bloqué indéfiniment — pas de
+                # reprise de session pour ce pilote (cf. DICTEE_LIVE_NUTRITION.md).
+                receive_task.cancel()
+                break
+            message = receive_task.result()
             if message["type"] == "websocket.disconnect":
                 break
             data = message.get("bytes")
@@ -131,7 +145,8 @@ async def stream_capture(websocket: WebSocket, session: AsyncSession = Depends(g
     except WebSocketDisconnect:
         pass
     finally:
-        await audio_queue.put(_END_OF_AUDIO)
+        if not forward_task.done():
+            await audio_queue.put(_END_OF_AUDIO)
         await forward_task
 
         try:
@@ -277,6 +292,7 @@ def _serialize_draft_item(row: CaptureDraftItem) -> dict[str, Any]:
         "quantity_units": row.quantity_units,
         "quantity_description": row.quantity_description,
         "is_packaged_product": row.is_packaged_product,
+        "dictated_macros": row.dictated_macros,
         "match_confidence": row.match_confidence,
         "candidates": row.candidates or [],
     }

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { getWebSocketUrl } from '../api/client'
-import type { MatchCandidate, MatchConfidence } from '../types/capture'
+import type { DictatedMacros, MatchCandidate, MatchConfidence } from '../types/capture'
 
 export type LiveCaptureStatus = 'idle' | 'connecting' | 'listening' | 'stopping' | 'stopped' | 'error'
 
@@ -12,9 +12,9 @@ export interface LiveTranscriptSegment {
 
 /** Item de brouillon tel que poussé par le serveur (add/modify), matching
  * catalogue déjà résolu (_resolve_food_item, même fonction que le flux
- * batch) — mêmes champs que PendingFoodItem. La résolution proprement dite
- * (choix d'une correspondance, édition manuelle...) reste à câbler en
- * Phase 7D (réutilisation de FoodItemRow). */
+ * batch) — mêmes champs que PendingFoodItem (hors off_candidates/
+ * needs_quantity_confirmation, pas de recherche Open Food Facts dans ce
+ * pilote). */
 export interface LiveDraftItem {
   item_id: string
   spoken_name: string
@@ -22,6 +22,7 @@ export interface LiveDraftItem {
   quantity_units: number | null
   quantity_description: string | null
   is_packaged_product: boolean
+  dictated_macros: DictatedMacros | null
   match_confidence: MatchConfidence
   candidates: MatchCandidate[]
 }
@@ -142,21 +143,42 @@ export function useLiveCapture() {
               }
             case 'stream_ended':
               return { ...s, status: 'stopped' }
+            // Erreur signalée par le serveur (ex: transcription realtime
+            // perdue) : affichée à titre informatif, sans bloquer le flux —
+            // la session peut malgré tout se terminer proprement ensuite
+            // (stream_ended) et les items déjà reconnus restent valables.
             case 'error':
-              return { ...s, status: 'error', error: message.message }
+              return { ...s, error: message.message }
             default:
               return s
           }
         })
       }
 
-      ws.onerror = () => {
-        setState((s) => ({ ...s, status: 'error', error: 'Connexion perdue avec le serveur.' }))
-      }
-
-      ws.onclose = () => {
+      // onerror ne porte aucune information exploitable côté navigateur et
+      // est toujours suivi d'un onclose : toute la gestion d'erreur de
+      // connexion se fait là-bas plutôt qu'ici.
+      ws.onclose = (event) => {
         cleanupAudio()
-        setState((s) => (s.status === 'error' ? s : { ...s, status: 'stopped' }))
+        setState((s) => {
+          if (s.status === 'connecting') {
+            // Jamais eu de session utilisable (échec de connexion initial) :
+            // rien à récupérer, pas de reprise pour ce pilote.
+            return { ...s, status: 'error', error: 'Impossible de se connecter au serveur.' }
+          }
+          // Fermeture propre (code 1000) ou déjà en cours d'arrêt normal
+          // (l'utilisateur a cliqué "Arrêter") : pas une erreur. Sinon,
+          // coupure inattendue en cours de dictée — signalée, mais les
+          // aliments déjà reconnus restent modifiables/validables.
+          const abnormal = event.code !== 1000 && s.status !== 'stopping'
+          return {
+            ...s,
+            status: 'stopped',
+            error: abnormal
+              ? 'Connexion perdue avec le serveur — dictée interrompue. Les aliments déjà reconnus restent modifiables ci-dessous.'
+              : s.error,
+          }
+        })
       }
     } catch {
       cleanupAudio()
