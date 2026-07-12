@@ -618,6 +618,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/d5/6b9c08ab9b5b890970e8949bf00a9f8f82653826de5cc5ad506fe1c1fb73/mistralai-2.6.0-py3-none-any.whl", hash = "sha256:4b7202b0cab84ea03f8ff4a933c8cfc615b3057520d9d76467c07aa23939dab2", size = 1235945, upload-time = "2026-07-06T14:40:06.226Z" },
 ]
 
+[package.optional-dependencies]
+realtime = [
+    { name = "websockets" },
+]
+
 [[package]]
 name = "openpyxl"
 version = "3.1.5"
@@ -1253,7 +1258,7 @@ dependencies = [
     { name = "asyncpg" },
     { name = "fastapi", extra = ["standard"] },
     { name = "httpx" },
-    { name = "mistralai" },
+    { name = "mistralai", extra = ["realtime"] },
     { name = "openpyxl" },
     { name = "pgvector" },
     { name = "pydantic" },
@@ -1276,7 +1281,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.30" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
-    { name = "mistralai", specifier = ">=1.2" },
+    { name = "mistralai", extras = ["realtime"], specifier = ">=1.2" },
     { name = "openpyxl", specifier = ">=3.1" },
     { name = "pgvector", specifier = ">=0.3" },
     { name = "pydantic", specifier = ">=2.9" },

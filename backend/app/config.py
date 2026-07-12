@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     mistral_api_key: str
     voxtral_model: str = "voxtral-mini-latest"
+    voxtral_realtime_model: str = "voxtral-mini-transcribe-realtime-2602"
     mistral_extraction_model: str = "mistral-large-latest"
     mistral_embed_model: str = "mistral-embed"
 

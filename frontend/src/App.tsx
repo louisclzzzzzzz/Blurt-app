@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createCapture, getHealth } from './api/client'
 import { CatalogueScreen } from './components/CatalogueScreen'
+import { LiveCaptureScreen } from './components/LiveCaptureScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { MicButton } from './components/MicButton'
 import { MobileNav } from './components/MobileNav'
@@ -21,6 +22,10 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<ValidateCaptureResponse | null>(null)
   const [screen, setScreen] = useState<Screen>('capture')
+  // Pilote dictée live (nutrition uniquement) : entrée séparée de la nav
+  // principale plutôt qu'un Screen de plus — additif, ne remplace pas le
+  // flux MicButton existant (cf. DICTEE_LIVE_NUTRITION.md).
+  const [showLiveCapture, setShowLiveCapture] = useState(false)
 
   const checkBackendHealth = () => {
     setBackendStatus('checking')
@@ -101,7 +106,18 @@ function App() {
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
-              {flow === 'idle' && <MicButton onRecorded={handleRecorded} />}
+              {flow === 'idle' && (
+                <>
+                  <MicButton onRecorded={handleRecorded} />
+                  <button
+                    type="button"
+                    onClick={() => setShowLiveCapture(true)}
+                    className="text-xs text-neutral-400 dark:text-neutral-500 underline underline-offset-2 press-effect"
+                  >
+                    Dictée live (nutrition, bêta)
+                  </button>
+                </>
+              )}
 
               {flow === 'uploading' && (
                 <p className="text-sm text-neutral-500 animate-pulse">Analyse en cours...</p>
@@ -156,6 +172,16 @@ function App() {
 
   if (backendStatus !== 'ok') {
     return <LoadingScreen status={backendStatus} onRetry={checkBackendHealth} />
+  }
+
+  if (showLiveCapture) {
+    return (
+      <div className="min-h-svh flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 safe-area-inset-top">
+        <main className="flex-1 overflow-y-auto mobile-scrollbar flex justify-center">
+          <LiveCaptureScreen onClose={() => setShowLiveCapture(false)} />
+        </main>
+      </div>
+    )
   }
 
   return (

@@ -16,6 +16,7 @@ class MealType(StrEnum):
 
 class CaptureStatus(StrEnum):
     UPLOADED = "uploaded"
+    STREAMING = "streaming"
     TRANSCRIBING = "transcribing"
     EXTRACTING = "extracting"
     PENDING_VALIDATION = "pending_validation"

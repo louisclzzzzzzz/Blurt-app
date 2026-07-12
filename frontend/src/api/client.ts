@@ -30,6 +30,11 @@ import type { WeeklyMuscleVolumeResponse } from '../types/volume'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
+/** Dérive l'URL WebSocket (ws/wss) à partir de la même base que les appels fetch. */
+export function getWebSocketUrl(path: string): string {
+  return `${API_BASE_URL}${path}`.replace(/^http/, 'ws')
+}
+
 export async function getHealth(): Promise<{ status: string }> {
   const response = await fetch(`${API_BASE_URL}/health`)
   if (!response.ok) {
